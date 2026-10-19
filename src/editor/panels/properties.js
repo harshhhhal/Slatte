@@ -182,21 +182,16 @@ export function createInspector(app) {
     const groups = ['uploaded', 'sans-serif', 'serif', 'monospace', 'display', 'handwriting'];
     for (const g of groups) {
       const items = cat.filter((f) => f.category === g);
-      if (items.length) familyOptions.push(h('optgroup', { label: g === 'uploaded' ? 'Uploaded' : g.replace('-', ' ') }, items.map((f) => h('option', { value: f.family }, f.family))));
+      if (items.length) familyOptions.push(...items.map((f) => ({ value: f.family, label: f.family, group: g === 'uploaded' ? 'Uploaded' : g.replace('-', ' ') })));
     }
-    const fam = h('select.select', { 'aria-label': 'Font family' }, familyOptions);
-    fam.value = first.fontFamily;
-    if (fam.value !== first.fontFamily) fam.prepend(h('option', { value: first.fontFamily }, first.fontFamily));
-    fam.value = first.fontFamily;
+    if (!familyOptions.some((f) => f.value === first.fontFamily)) familyOptions.unshift({ value: first.fontFamily, label: first.fontFamily, group: 'Current font' });
     const status = h('p.hint.font-status', { role: 'status' });
     const updateStatus = () => {
       const st = fonts.stateOf(objs()[0] && objs()[0].fontFamily);
       status.textContent = st === 'loading' ? 'Loading font…' : st === 'failed' ? 'This font couldn’t load; a fallback font is shown. Check your connection.' : '';
       status.classList.toggle('error', st === 'failed');
     };
-    fam.addEventListener('keydown', (e) => e.stopPropagation());
-    fam.addEventListener('change', async () => {
-      const f = fam.value;
+    const fam = selectInput({ label: 'Font family', options: familyOptions, value: first.fontFamily, onChange: async (f) => {
       const meta = fonts.info(f, local);
       const weights = meta ? meta.weights : [400, 700];
       const w = objs()[0].fontWeight;
@@ -207,7 +202,7 @@ export function createInspector(app) {
       editor.setProps({ fontFamily: f }, { label: 'Change font', key: `font:${f}` });
       updateStatus();
       key = ''; refresh();
-    });
+    } });
     const meta = fonts.info(first.fontFamily, local) || { weights: [400, 700], italic: true };
     const wOpts = [...new Set([...meta.weights, first.fontWeight])].sort((a, b) => a - b);
     const WN = { 100: 'Thin', 200: 'Extra light', 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'Semibold', 700: 'Bold', 800: 'Extra bold', 900: 'Black' };
@@ -223,7 +218,7 @@ export function createInspector(app) {
     const auto = segmented({ label: 'Text box', options: [{ value: 'auto', label: 'Auto width' }, { value: 'fixed', label: 'Fixed width' }], value: first.autoWidth ? 'auto' : 'fixed', iconOnly: false, onChange: (v) => editor.setProps({ autoWidth: v === 'auto' }, { label: 'Change text box' }) });
     reg(() => {
       const o = objs()[0];
-      fam.value = o.fontFamily; weight.set(String(o.fontWeight)); align.set(o.align); auto.set(o.autoWidth ? 'auto' : 'fixed');
+      fam.set(o.fontFamily); weight.set(String(o.fontWeight)); align.set(o.align); auto.set(o.autoWidth ? 'auto' : 'fixed');
       style.children[0].setAttribute('aria-pressed', String(o.fontStyle === 'italic'));
       style.children[1].setAttribute('aria-pressed', String(!!o.underline));
       style.children[2].setAttribute('aria-pressed', String(!!o.strike));
@@ -231,7 +226,7 @@ export function createInspector(app) {
     });
     updateStatus();
     const edit = h('button.btn.btn-block', { type: 'button', onclick: () => { editor.setTool('text'); stage.tools.get('text').edit(objs()[0].id, stage._ctx()); } }, 'Edit text');
-    return section('Text', { key: 'text' }, edit, row('Font', fam), status, row('Weight', weight.el), row('Size', size.el),
+    return section('Text', { key: 'text' }, edit, row('Font', fam.el), status, row('Weight', weight.el), row('Size', size.el),
       h('div.grid2', row('Line', lh.el), row('Spacing', ls.el)), row('Style', style), row('Align', align.el), row('Box', auto.el));
   };
 
@@ -399,15 +394,14 @@ export function createInspector(app) {
     const w = numberInput({ label: 'Page width', value: page.width, min: 1, max: 16000, dp: 0, unit: 'px', onInput: (v) => editor.setPageProps({ width: Math.round(v) }, { key: 'pw' }) });
     const hh = numberInput({ label: 'Page height', value: page.height, min: 1, max: 16000, dp: 0, unit: 'px', onInput: (v) => editor.setPageProps({ height: Math.round(v) }, { key: 'ph' }) });
     reg(() => { w.set(editor.page.width); hh.set(editor.page.height); });
-    const presets = h('select.select', { 'aria-label': 'Size preset' },
-      h('option', { value: '' }, 'Choose a preset…'),
-      ...['Social', 'Presentation', 'Print', 'Screen'].map((g) => h('optgroup', { label: g }, PAGE_PRESETS.filter((p) => p.group === g).map((p) => h('option', { value: p.id }, `${p.name} — ${p.width}×${p.height}`)))));
-    presets.addEventListener('keydown', (e) => e.stopPropagation());
-    presets.addEventListener('change', () => {
-      const p = PAGE_PRESETS.find((x) => x.id === presets.value);
+    const presets = selectInput({ label: 'Size preset', value: '', options: [
+      { value: '', label: 'Choose a preset…' },
+      ...PAGE_PRESETS.map((p) => ({ value: p.id, label: `${p.name} — ${p.width}×${p.height}`, group: p.group })),
+    ], onChange: (value) => {
+      const p = PAGE_PRESETS.find((x) => x.id === value);
       if (p) { editor.setPageProps({ width: p.width, height: p.height }, { key: null }); stage.fitPage(); }
-      presets.value = '';
-    });
+      presets.set('');
+    } });
     const bg = colorInput({ label: 'Page background', value: page.background.color, onInput: (v) => editor.setPageProps({ 'background.color': v }, { key: 'pbg' }), onCommit: (v) => editor.rememberColor(v) });
     reg(() => bg.set(editor.page.background.color));
     const transparent = toggle({ label: 'Transparent background', value: page.background.transparent, onChange: (v) => editor.setPageProps({ 'background.transparent': v }) });
@@ -427,7 +421,7 @@ export function createInspector(app) {
       },
     }, 'Save current colour as a style');
     return [
-      section('Page', { key: 'page' }, row('Name', name), row('Preset', presets), h('div.grid2', row('W', w.el), row('H', hh.el)), row('Background', bg.el), row('Transparent', transparent.el)),
+      section('Page', { key: 'page' }, row('Name', name), row('Preset', presets.el), h('div.grid2', row('W', w.el), row('H', hh.el)), row('Background', bg.el), row('Transparent', transparent.el)),
       section('Guides & snapping', { key: 'guides' }, row('Show grid', gridShow.el), row('Grid size', gridSize.el), row('Snap to grid', gridSnap.el), row('Snap to objects', snap.el), row('Rulers', rulers.el)),
       section('Colours', { key: 'colors', open: false },
         recent.length ? h('div.swatches', recent.map((c) => h('button.swatch', { type: 'button', style: { background: c }, title: c, 'aria-label': `Recent colour ${c}`, onclick: () => { editor.toolOptions.sampled = c; } }))) : h('p.hint', 'Colours you use appear here.'),

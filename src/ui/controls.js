@@ -71,13 +71,10 @@ export function numberInput({ label, value = 0, min = -1e6, max = 1e6, step = 1,
 }
 
 export function slider({ label, value = 0, min = 0, max = 100, step = 1, unit = '', dp = 0, onInput, onCommit }) {
-  const range = h('input.range', { type: 'range', min, max, step, value, 'aria-label': label });
-  const num = numberInput({ label: `${label} value`, value, min, max, step, unit, dp, width: '56px', onInput: (v) => { range.value = v; onInput && onInput(v); } });
-  range.addEventListener('input', () => { const v = parseFloat(range.value); num.set(v); onInput && onInput(v); });
-  range.addEventListener('change', () => onCommit && onCommit(parseFloat(range.value)));
+  const num = numberInput({ label, value, min, max, step, unit, dp, onInput, onCommit });
   return {
-    el: h('div.slider-wrap', range, num.el),
-    set(v, mixed) { range.value = v; num.set(v, mixed); },
+    el: h('div.scrub-field', num.el),
+    set(v, mixed) { num.set(v, mixed); },
   };
 }
 
@@ -123,11 +120,104 @@ export function toggle({ label, value = false, onChange }) {
   return { el: h('label.switch', input, h('span.switch-track')), set(v) { input.checked = !!v; } };
 }
 
-export function selectInput({ label, options, value, onChange }) {
-  const sel = h('select.select', { 'aria-label': label }, options.map((o) => h('option', { value: o.value, selected: o.value === value }, o.label)));
-  sel.addEventListener('change', () => onChange(sel.value));
-  sel.addEventListener('keydown', (e) => e.stopPropagation());
-  return { el: sel, set(v) { sel.value = v; } };
+let activeSelect = null;
+if (typeof document !== 'undefined') document.addEventListener('pointerdown', (event) => {
+  if (activeSelect && !activeSelect.wrapper.contains(event.target) && !activeSelect.menu.contains(event.target)) activeSelect.close();
+});
+if (typeof document !== 'undefined') document.addEventListener('focusin', (event) => {
+  if (activeSelect && !activeSelect.wrapper.contains(event.target) && !activeSelect.menu.contains(event.target)) activeSelect.close();
+});
+
+export function selectInput({ label, options, value, onChange, className = '' }) {
+  let selected = String(value ?? '');
+  const wrapper = h('div.custom-select', { class: className });
+  const trigger = h('button.select-trigger', { type: 'button', 'aria-label': label, 'aria-haspopup': 'listbox', 'aria-expanded': 'false' },
+    h('span.select-value'), h('span.select-chevron', { html: icon('chevronDown', 15) }));
+  const menu = h('div.select-menu', { role: 'listbox', 'aria-label': label });
+  let optionButtons = [];
+  let lastGroup;
+  options.forEach((option) => {
+    if (option.group && option.group !== lastGroup) {
+      menu.append(h('div.select-group', { role: 'presentation' }, option.group));
+      lastGroup = option.group;
+    }
+    const button = h('button.select-option', {
+      type: 'button', role: 'option', tabindex: '-1', 'aria-selected': 'false',
+      dataset: { value: String(option.value) }, disabled: !!option.disabled,
+    }, h('span.select-option-label', option.label), h('span.select-check', { html: icon('check', 14) }));
+    button.addEventListener('click', () => choose(String(option.value), true));
+    optionButtons.push(button);
+    menu.append(button);
+  });
+  const selectedLabel = () => options.find((option) => String(option.value) === selected)?.label ?? '';
+  const sync = () => {
+    trigger.querySelector('.select-value').textContent = selectedLabel();
+    optionButtons.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.value === selected)));
+  };
+  const close = (restoreFocus = false) => {
+    menu.remove();
+    trigger.setAttribute('aria-expanded', 'false');
+    wrapper.classList.remove('open');
+    if (activeSelect?.wrapper === wrapper) activeSelect = null;
+    if (restoreFocus) trigger.focus();
+  };
+  const open = () => {
+    if (activeSelect && activeSelect.wrapper !== wrapper) activeSelect.close();
+    activeSelect = { wrapper, menu, close };
+    const dialog = trigger.closest('dialog[open]');
+    (dialog || document.body).append(menu);
+    const rect = trigger.getBoundingClientRect();
+    const margin = 8;
+    const below = window.innerHeight - rect.bottom - margin;
+    const above = rect.top - margin;
+    const placeBelow = below >= Math.min(220, above) || below >= above;
+    const maxHeight = Math.max(120, Math.min(280, (placeBelow ? below : above) - 6));
+    menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8))}px`;
+    menu.style.width = `${rect.width}px`;
+    menu.style.maxHeight = `${maxHeight}px`;
+    menu.style.top = placeBelow ? `${rect.bottom + 6}px` : 'auto';
+    menu.style.bottom = placeBelow ? 'auto' : `${window.innerHeight - rect.top + 6}px`;
+    trigger.setAttribute('aria-expanded', 'true');
+    wrapper.classList.add('open');
+  };
+  const choose = (next, notify) => {
+    selected = next;
+    sync();
+    close(true);
+    if (notify) onChange?.(next);
+  };
+  const focusOption = (index) => optionButtons[Math.max(0, Math.min(optionButtons.length - 1, index))]?.focus();
+  trigger.addEventListener('click', () => {
+    if (trigger.getAttribute('aria-expanded') === 'true') close();
+    else open();
+  });
+  trigger.addEventListener('keydown', (event) => {
+    event.stopPropagation();
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      open();
+      const index = optionButtons.findIndex((button) => button.dataset.value === selected);
+      focusOption(event.key === 'ArrowDown' ? index + 1 : index - 1);
+    }
+  });
+  menu.addEventListener('keydown', (event) => {
+    event.stopPropagation();
+    const current = optionButtons.indexOf(document.activeElement);
+    if (event.key === 'Escape') { event.preventDefault(); close(true); }
+    else if (event.key === 'ArrowDown') { event.preventDefault(); focusOption(current + 1); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); focusOption(current - 1); }
+    else if (event.key === 'Home') { event.preventDefault(); focusOption(0); }
+    else if (event.key === 'End') { event.preventDefault(); focusOption(optionButtons.length - 1); }
+  });
+  wrapper.append(trigger);
+  sync();
+  const api = {
+    el: wrapper,
+    set(next) { selected = String(next ?? ''); sync(); },
+    close,
+  };
+  Object.defineProperty(api, 'value', { get: () => selected, set: (next) => api.set(next) });
+  return api;
 }
 
 export function iconButton({ name, label, onClick, pressed, size = 16, disabled = false }) {

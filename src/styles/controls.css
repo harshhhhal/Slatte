@@ -25,8 +25,7 @@ input.rename { width: 100%; height: 24px; }
 input.text-input { width: 100%; }
 textarea.credits { height: auto; padding: 8px; width: 100%; resize: vertical; }
 
-.slider-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-input.range { flex: 1; min-width: 60px; accent-color: var(--accent); height: 22px; }
+.scrub-field { display: flex; align-items: center; flex: 1; min-width: 0; }
 
 .color-input { display: inline-flex; align-items: center; gap: 6px; }
 input.color-swatch { appearance: none; -webkit-appearance: none; width: 30px; height: 30px; padding: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: none; cursor: pointer; overflow: hidden; }
@@ -79,4 +78,28 @@ input.color-swatch::-moz-color-swatch { border: 0; border-radius: 4px; }
 .grid2 input.num, .grid4 input.num { width: 100%; }
 .grid2 .prop-row { grid-template-columns: auto minmax(0, 1fr); gap: 6px; }
 .grid2 .prop-label { min-width: 12px; }
+
+/* App-wide themed select control and portal menu. */
+.custom-select { position: relative; display: inline-flex; width: 100%; min-width: 0; }
+.select-trigger { width: 100%; min-width: 0; min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); text-align: left; font: 500 13px/1.2 var(--font); cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, background .16s ease; }
+.select-trigger:hover { border-color: var(--text-muted); }
+.select-trigger:focus-visible, .custom-select.open .select-trigger { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-chevron { display: grid; place-items: center; flex: none; color: var(--text-muted); transition: transform .18s ease; }
+.custom-select.open .select-chevron { transform: rotate(180deg); color: var(--accent); }
+.custom-select.small .select-trigger { min-height: 30px; padding-inline: 8px; font-size: 12px; }
+.select-menu { position: fixed; z-index: 1500; display: grid; align-content: start; gap: 2px; padding: 5px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border-strong); border-radius: 11px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg); animation: select-menu-in .14s cubic-bezier(.2,.8,.2,1) both; }
+.select-option { width: 100%; min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; color: var(--text); text-align: left; font: 400 13px/1.25 var(--font); cursor: pointer; }
+.select-option:hover, .select-option:focus-visible { outline: none; background: var(--panel-2); }
+.select-option[aria-selected='true'] { background: var(--accent-soft); color: var(--text); font-weight: 600; }
+.select-option[aria-selected='true']:hover, .select-option[aria-selected='true']:focus-visible { background: var(--accent-soft); }
+.select-option:disabled { opacity: .45; cursor: not-allowed; }
+.select-check { display: grid; color: var(--accent); opacity: 0; }
+.select-option[aria-selected='true'] .select-check { opacity: 1; }
+.select-group { padding: 9px 9px 4px; color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.select-group:not(:first-child) { margin-top: 3px; border-top: 1px solid var(--border); }
+@keyframes select-menu-in { from { opacity: 0; transform: translateY(-4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.scrub-field .num-wrap { flex: 1; width: 100%; }
+.scrub-field input.num { width: 100%; cursor: ns-resize; }
+@media (prefers-reduced-motion: reduce) { .select-trigger, .select-chevron { transition: none; } .select-menu { animation: none; } }
 .grid2.with-lock { grid-template-columns: 1fr 1fr auto; }

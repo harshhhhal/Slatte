@@ -2,6 +2,7 @@
 import { PAGE_PRESETS } from '../core/document-model.js';
 import { createProject } from '../services/projects.js';
 import { openDialog, toast } from '../ui/ui.js';
+import { selectInput } from '../ui/controls.js';
 import { describeError } from '../utils/errors.js';
 
 function shape(p) {
@@ -30,20 +31,20 @@ export function openNewDesignDialog(ctx) {
   const width = h('input.text-input', { type: 'number', min: 0.01, step: 'any', value: 1200, 'aria-label': 'Custom width' });
   const height = h('input.text-input', { type: 'number', min: 0.01, step: 'any', value: 800, 'aria-label': 'Custom height' });
   const unitFactors = { px: 1, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, pt: 96 / 72 };
-  const unit = h('select.select.unit-select', { 'aria-label': 'Measurement unit' },
-    ...[['px', 'px'], ['in', 'in'], ['cm', 'cm'], ['mm', 'mm'], ['pt', 'pt']].map(([value, label], index) =>
-      h('option', { value, selected: index === 0 }, label)));
-  unit.addEventListener('change', () => {
-    const oldFactor = unitFactors[unit.dataset.previousUnit || 'px'];
-    const newFactor = unitFactors[unit.value];
+  let selectedUnit = 'px';
+  const unit = selectInput({ label: 'Measurement unit', className: 'unit-select', value: selectedUnit,
+    options: [['px', 'px'], ['in', 'in'], ['cm', 'cm'], ['mm', 'mm'], ['pt', 'pt']].map(([value, label]) => ({ value, label })),
+    onChange: (nextUnit) => {
+    const oldFactor = unitFactors[selectedUnit];
+    const newFactor = unitFactors[nextUnit];
     const convert = (input) => {
       const px = Number(input.value) * oldFactor;
       input.value = String(Number((px / newFactor).toFixed(3)));
     };
     convert(width);
     convert(height);
-    unit.dataset.previousUnit = unit.value;
-  });
+    selectedUnit = nextUnit;
+  } });
   const error = h('p.field-error', { role: 'alert' });
   const groups = [...new Set(PAGE_PRESETS.map((preset) => preset.group))];
   const presets = h('div.picker-presets');
@@ -88,7 +89,7 @@ export function openNewDesignDialog(ctx) {
     return tab;
   }));
   const customCreate = h('button.btn.btn-primary', { type: 'button', onclick: (event) => {
-    const factor = unitFactors[unit.value];
+    const factor = unitFactors[selectedUnit];
     const w = Math.round(Number(width.value) * factor), hh = Math.round(Number(height.value) * factor);
     if (!(w >= 1 && w <= 16000 && hh >= 1 && hh <= 16000)) {
       error.textContent = 'Keep each dimension between 1 and 16,000 px.';

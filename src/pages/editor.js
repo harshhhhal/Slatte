@@ -366,7 +366,7 @@ export async function renderEditor(ctx) {
   const root = h('div.editor-app',
     h('a.skip', { href: '#main' }, 'Skip to canvas'),
     topbar,
-    h('div.workspace', rail.el, leftPanel, resizer('left'), stageWrap, resizer('right'), rightPanel, scrim),
+    h('div.workspace', leftPanel, resizer('left'), stageWrap, rail.el, resizer('right'), rightPanel, scrim),
     statusbar);
   root.style.setProperty('--left-w', `${layout.left}px`);
   root.style.setProperty('--right-w', `${layout.right}px`);

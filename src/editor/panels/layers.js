@@ -1,7 +1,7 @@
 import { h, debounce } from '../../utils/dom.js';
 import { icon, typeIconName } from '../../core/icons.js';
 import { childrenOf, isContainer, typeLabel, descendantIds } from '../../core/document-model.js';
-import { iconButton } from '../../ui/controls.js';
+import { iconButton, selectInput } from '../../ui/controls.js';
 
 const FILTERS = [
   ['all', 'All types'], ['text', 'Text'], ['image', 'Images'], ['path', 'Paths'], ['shapes', 'Shapes'],
@@ -18,7 +18,8 @@ export function createLayersPanel(editor) {
   const collapsed = new Set();
 
   const search = h('input.search', { type: 'search', placeholder: 'Search layers', 'aria-label': 'Search layers' });
-  const filterSel = h('select.select.small', { 'aria-label': 'Filter by type' }, FILTERS.map(([v, l]) => h('option', { value: v }, l)));
+  const filterSel = selectInput({ label: 'Filter by type', className: 'small', options: FILTERS.map(([value, label]) => ({ value, label })), value: filter,
+    onChange: (value) => { filter = value; render(); } });
   const list = h('ul.layer-list', { role: 'tree', 'aria-label': 'Layers', 'aria-multiselectable': 'true' });
   const empty = h('div.empty', h('p.empty-title', 'No layers yet'), h('p', 'Draw a shape, add text or import an image to get started.'));
   const footer = h('div.layers-foot',
@@ -28,7 +29,7 @@ export function createLayersPanel(editor) {
     iconButton({ name: 'brush', label: 'New paint layer', onClick: () => editor.emit('new-paint-layer') }),
     h('span.spacer'),
     iconButton({ name: 'trash', label: 'Delete', onClick: () => editor.deleteSelection() }));
-  root.append(h('div.layers-tools', search, filterSel), list, empty, footer);
+  root.append(h('div.layers-tools', search, filterSel.el), list, empty, footer);
 
   const matches = (o) => {
     if (query && !o.name.toLowerCase().includes(query.toLowerCase())) return false;
@@ -189,7 +190,6 @@ export function createLayersPanel(editor) {
   ];
   search.addEventListener('input', () => { query = search.value; render(); });
   search.addEventListener('keydown', (e) => e.stopPropagation());
-  filterSel.addEventListener('change', () => { filter = filterSel.value; render(); });
   render();
   return { el: root, render, destroy: () => offs.forEach((o) => o()) };
 }
