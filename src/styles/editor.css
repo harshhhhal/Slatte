@@ -64,7 +64,7 @@
 .flyout-mark { position: absolute; right: 2px; bottom: 2px; opacity: 0.6; transform: rotate(-45deg) scale(0.8); }
 .artboard-actions { position: absolute; z-index: 12; display: flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--border-strong); border-radius: 11px; background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-md); backdrop-filter: blur(14px); }
 .page-action { display: grid; place-items: center; width: 27px; height: 27px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); cursor: pointer; transition: background .14s, color .14s, transform .14s; }
-.page-action:hover:not(:disabled) { background: var(--panel-2); color: var(--text); }
+.page-action:hover:not(:disabled) { background: transparent; color: var(--accent); }
 .page-action:active:not(:disabled) { transform: scale(.92); }
 .page-action:disabled { opacity: .3; cursor: default; }
 
