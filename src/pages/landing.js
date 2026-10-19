@@ -39,6 +39,39 @@ export async function renderLanding(ctx) {
   themeBtn.addEventListener('click', () => { toggleTheme(); paintTheme(); });
   paintTheme();
 
+  const featureItems = CAPABILITIES.map(([ic, title]) => h('li.cap',
+    h('span.cap-icon', { html: icon(ic, 22) }), h('h3', title)));
+  const featureTrack = h('ul.cap-track', featureItems);
+  const featureDeck = h('div.cap-carousel', { role: 'region', 'aria-label': 'Slatte features' }, featureTrack);
+  let activeFeature = 0;
+  let featureTimer;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const syncFeatureDeck = () => {
+    featureItems.forEach((item, index) => {
+      let offset = (index - activeFeature + CAPABILITIES.length) % CAPABILITIES.length;
+      if (offset > CAPABILITIES.length / 2) offset -= CAPABILITIES.length;
+      item.dataset.position = reducedMotion.matches ? 'static' : String(offset);
+      item.setAttribute('aria-hidden', String(!reducedMotion.matches && Math.abs(offset) > 2));
+    });
+  };
+  const stopFeatureDeck = () => { clearInterval(featureTimer); featureTimer = undefined; };
+  const startFeatureDeck = () => {
+    stopFeatureDeck();
+    if (reducedMotion.matches || document.hidden) return;
+    featureTimer = setInterval(() => {
+      activeFeature = (activeFeature + 1) % CAPABILITIES.length;
+      syncFeatureDeck();
+    }, 3400);
+  };
+  featureDeck.addEventListener('mouseenter', stopFeatureDeck);
+  featureDeck.addEventListener('mouseleave', startFeatureDeck);
+  featureDeck.addEventListener('focusin', stopFeatureDeck);
+  featureDeck.addEventListener('focusout', startFeatureDeck);
+  document.addEventListener('visibilitychange', startFeatureDeck);
+  const onMotionChange = () => { syncFeatureDeck(); startFeatureDeck(); };
+  reducedMotion.addEventListener('change', onMotionChange);
+  syncFeatureDeck();
+
   /* ---------------- page ---------------- */
   const root = h('div.landing',
     h('a.skip', { href: '#main' }, 'Skip to content'),
@@ -58,9 +91,7 @@ export async function renderLanding(ctx) {
           h('div.hero-float.float-bottom', h('span.float-swatch'), h('span', 'Made your way')))),
       h('section.capabilities#capabilities', { 'aria-labelledby': 'cap-h' },
         h('div.block-head', h('h2#cap-h', 'Tools for your\nnext good idea.')),
-        h('div.cap-carousel', { role: 'region', 'aria-label': 'Slatte features' },
-          h('ul.cap-track', CAPABILITIES.map(([ic, t], index) => h('li.cap', { style: { '--card-angle': `${index * 60}deg` } },
-            h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t)))))),
+        featureDeck),
       h('section.make-strip', { 'aria-labelledby': 'make-h' },
         h('div.make-copy',
           h('p.eyebrow', 'A few possibilities'),
@@ -75,7 +106,12 @@ export async function renderLanding(ctx) {
       h('span.muted', 'Made for ideas, built for your device.')));
 
   ctx.outlet.append(root);
+  startFeatureDeck();
   return {
-    destroy() {},
+    destroy() {
+      stopFeatureDeck();
+      document.removeEventListener('visibilitychange', startFeatureDeck);
+      reducedMotion.removeEventListener('change', onMotionChange);
+    },
   };
 }

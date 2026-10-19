@@ -60,15 +60,17 @@ export async function renderApp(ctx) {
     projectCount.textContent = `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}`;
     urls.splice(0).forEach((url) => URL.revokeObjectURL(url));
     if (!projects.length) {
-      projectList.replaceChildren(h('li.state.state-empty', h('p.state-title', 'Your next idea starts here'),
+      projectList.replaceChildren(h('li.state.state-empty', h('div.empty-art', { 'aria-hidden': 'true' }, h('i'), h('b'), h('span', '✳')),
+        h('p.state-title', 'Your next idea starts here'),
         h('p', 'Create a canvas and it will show up here.'),
         h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, 'Create a design')));
       return;
     }
-    projectList.replaceChildren(...projects.map((project) => {
+    projectList.replaceChildren(...projects.map((project, index) => {
       const thumbnail = project.thumb instanceof Blob
         ? h('img', { src: URL.createObjectURL(project.thumb), alt: '', loading: 'lazy' })
-        : h('span.thumb-empty', { html: icon('image', 28) });
+        : h('div.thumb-empty', { class: `palette-${index % 4}`, 'aria-hidden': 'true' },
+          h('span.thumb-monogram', (project.name || 'S').trim().charAt(0).toUpperCase()), h('i.thumb-orb'), h('i.thumb-bar'));
       if (project.thumb instanceof Blob) urls.push(thumbnail.src);
       const more = h('button.icon-btn.card-more', { type: 'button', 'aria-label': `More actions for ${project.name}`, 'aria-haspopup': 'menu', html: icon('more', 18) });
       more.addEventListener('click', (event) => {
