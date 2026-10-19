@@ -27,8 +27,23 @@ export function presetGroups(onChoose) {
 }
 
 export function openNewDesignDialog(ctx) {
-  const width = h('input.text-input', { type: 'number', min: 1, max: 16000, value: 1200, 'aria-label': 'Custom width in pixels' });
-  const height = h('input.text-input', { type: 'number', min: 1, max: 16000, value: 800, 'aria-label': 'Custom height in pixels' });
+  const width = h('input.text-input', { type: 'number', min: 0.01, step: 'any', value: 1200, 'aria-label': 'Custom width' });
+  const height = h('input.text-input', { type: 'number', min: 0.01, step: 'any', value: 800, 'aria-label': 'Custom height' });
+  const unitFactors = { px: 1, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, pt: 96 / 72 };
+  const unit = h('select.select.unit-select', { 'aria-label': 'Measurement unit' },
+    ...[['px', 'px'], ['in', 'in'], ['cm', 'cm'], ['mm', 'mm'], ['pt', 'pt']].map(([value, label], index) =>
+      h('option', { value, selected: index === 0 }, label)));
+  unit.addEventListener('change', () => {
+    const oldFactor = unitFactors[unit.dataset.previousUnit || 'px'];
+    const newFactor = unitFactors[unit.value];
+    const convert = (input) => {
+      const px = Number(input.value) * oldFactor;
+      input.value = String(Number((px / newFactor).toFixed(3)));
+    };
+    convert(width);
+    convert(height);
+    unit.dataset.previousUnit = unit.value;
+  });
   const error = h('p.field-error', { role: 'alert' });
   const groups = [...new Set(PAGE_PRESETS.map((preset) => preset.group))];
   const presets = h('div.picker-presets');
@@ -62,21 +77,21 @@ export function openNewDesignDialog(ctx) {
     return tab;
   }));
   const customCreate = h('button.btn.btn-primary', { type: 'button', onclick: (event) => {
-    const w = Math.round(Number(width.value)), hh = Math.round(Number(height.value));
+    const factor = unitFactors[unit.value];
+    const w = Math.round(Number(width.value) * factor), hh = Math.round(Number(height.value) * factor);
     if (!(w >= 1 && w <= 16000 && hh >= 1 && hh <= 16000)) {
-      error.textContent = 'Enter a width and height between 1 and 16000 px.';
+      error.textContent = 'Keep each dimension between 1 and 16,000 px.';
       return;
     }
     error.textContent = '';
     start({ width: w, height: hh, name: 'Untitled design' }, event.currentTarget);
   } }, 'Create');
   const body = h('div.template-picker',
-    h('div.picker-intro', h('p.picker-hint', 'Choose a starting point. Add pages later.'),
-      h('span.picker-count', `${PAGE_PRESETS.length} canvas sizes`)),
     tabs,
     presets,
-    h('section.custom-group', h('div.custom-heading', h('h3', 'Custom size'), h('span.muted', 'Pixels')),
-      h('div.custom-size', h('label', 'Width', width), h('span.custom-times', 'x'), h('label', 'Height', height), customCreate),
+    h('section.custom-group', h('div.custom-heading', h('h3', 'Custom size')),
+      h('div.custom-size', h('label', 'Width', width), h('span.custom-times', 'x'), h('label', 'Height', height),
+        h('label.unit-field', 'Units', unit), customCreate),
       error));
   modal = openDialog({ title: 'Choose a canvas', body, wide: true });
   modal.el.classList.add('template-dialog');

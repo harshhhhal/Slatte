@@ -373,3 +373,105 @@ dialog.dialog.wide.template-dialog .dialog-body { flex: 0 1 auto; max-height: ca
   .custom-size { display: grid; grid-template-columns: 1fr auto 1fr auto; }
   .custom-size .btn { grid-column: 1 / -1; }
 }
+
+/* Leaner page rhythm */
+.landing main { max-width: 1200px; }
+.hero { min-height: 0; padding: clamp(42px, 6vw, 76px) 0 clamp(54px, 7vw, 84px); gap: clamp(28px, 4.5vw, 64px); }
+.hero h1 { font-size: clamp(50px, 6vw, 76px); }
+.hero .lede { font-size: clamp(15px, 1.35vw, 17px); }
+.hero-preview { border-radius: 16px; }
+.pv-body { height: clamp(300px, 36vw, 430px); }
+.hero-visual { padding: 8px 8px 14px 0; }
+.hero-float { padding: 8px 12px; font-size: 11px; }
+.capabilities { padding-top: 6px; padding-bottom: 60px; }
+.cap { min-height: 110px; padding: 14px; }
+.capabilities .block-head h2 { font-size: clamp(29px, 3.4vw, 40px); }
+.app-main { max-width: 1200px; padding-top: 22px; padding-bottom: 54px; }
+.app-welcome { min-height: 250px; margin-bottom: 52px; padding: clamp(28px, 4vw, 44px); border-radius: 22px; }
+.app-welcome-copy h1 { font-size: clamp(42px, 5vw, 60px); }
+.app-welcome-copy > p:not(.eyebrow) { margin-top: 10px; font-size: 14px; }
+.app-welcome-copy .btn { margin-top: 18px; min-height: 42px; }
+.app-welcome-art { min-height: 205px; }
+.welcome-paper { width: min(48%, 172px); }
+.app-projects { margin-bottom: 52px; }
+.app-section-head { margin-bottom: 18px; }
+.app-section-head h2 { font-size: clamp(28px, 3.2vw, 36px); }
+.project-grid { gap: 14px; }
+.project-thumb { aspect-ratio: 1.5; }
+.project-meta { padding: 11px 44px 12px 13px; }
+.app-templates { padding-top: 42px; }
+.app-template-groups { gap: 30px; }
+.app-template-groups .size-grid { gap: 11px; }
+.app-template-groups .size-card { min-height: 148px; padding: 12px; border-radius: 14px; }
+.app-template-groups .size-card::before { width: 70px; height: 70px; top: 13px; }
+.app-template-groups .size-shape { top: 22px; max-width: 52px; max-height: 58px; }
+
+/* Shorter, lighter canvas picker */
+dialog.dialog.wide.template-dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); border-radius: 20px; }
+dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px); padding: 12px 22px 20px; }
+.template-dialog .dialog-head { padding: 18px 22px 0; }
+.template-dialog .dialog-head h2 { font-size: 22px; }
+.template-picker { gap: 12px; }
+.picker-intro { min-height: 22px; }
+.picker-count { display: none; }
+.picker-hint { font-size: 13px; }
+.picker-tabs { width: fit-content; max-width: 100%; padding: 3px; }
+.picker-tab { min-height: 31px; padding-inline: 13px; }
+.picker-presets .size-grid { min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.picker-presets .size-grid:has(> li:first-child:last-child) { max-width: 33.333%; margin-inline: auto; }
+.picker-presets .size-grid:has(> li:nth-child(2):last-child) { max-width: 66.666%; margin-inline: auto; }
+.picker-presets .size-card { min-height: 112px; padding: 10px 7px; gap: 3px; border-radius: 13px; }
+.picker-presets .size-card::before { width: 64px; height: 64px; top: 7px; }
+.picker-presets li:nth-child(3n + 2) .size-card::before { width: 72px; height: 52px; top: 13px; }
+.picker-presets li:nth-child(3n) .size-card::before { width: 56px; height: 70px; top: 5px; }
+.picker-presets .size-shape { max-width: 52px; max-height: 52px; }
+.custom-group { grid-template-columns: 1fr; gap: 8px; padding: 11px 13px; border-radius: 12px; }
+.custom-heading h3 { font-size: 12px; }
+.custom-size { display: grid; grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 82px auto; align-items: end; gap: 7px; }
+.custom-size label { min-width: 0; gap: 3px; font-size: 10px; }
+.custom-size input { width: 100%; min-width: 0; min-height: 34px; padding-inline: 8px; }
+.custom-size .unit-select { width: 82px; min-height: 34px; padding: 0 22px 0 8px; }
+.custom-size .custom-times { padding-bottom: 8px; }
+.custom-size .btn { min-height: 34px; padding-inline: 12px; }
+.custom-group .field-error { min-height: 0; }
+@media (max-width: 900px) {
+  .hero { padding-top: 48px; padding-bottom: 60px; }
+  .app-welcome { min-height: 225px; }
+}
+@media (max-width: 620px) {
+  .hero { padding-top: 38px; padding-bottom: 48px; }
+  .hero h1 { font-size: clamp(48px, 13vw, 62px); }
+  .pv-body { height: clamp(250px, 66vw, 340px); }
+  .app-main { padding-top: 12px; }
+  .app-welcome { min-height: 0; margin-bottom: 38px; padding: 24px 20px 0; }
+  .app-welcome-art { min-height: 190px; }
+  .app-projects { margin-bottom: 38px; }
+  .app-templates { padding-top: 32px; }
+  .app-template-groups .size-card { min-height: 136px; }
+  dialog.dialog.wide.template-dialog { width: min(520px, calc(100vw - 20px)); max-height: calc(100dvh - 20px); }
+  dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 80px); padding: 10px 16px 16px; }
+  .template-dialog .dialog-head { padding: 15px 16px 0; }
+  .picker-presets .size-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .picker-presets .size-grid:has(> li:first-child:last-child) { max-width: 50%; }
+  .picker-presets .size-grid:has(> li:nth-child(2):last-child) { max-width: 100%; }
+  .custom-size { grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) 70px; }
+  .custom-size .btn { grid-column: 1 / -1; }
+  .custom-size .unit-select { width: 70px; }
+}
+
+/* Compact app workspace and canvas controls */
+.app-main { padding-top: 16px; }
+.app-section-head { align-items: center; }
+.app-section-actions { display: flex; align-items: center; gap: 18px; }
+.app-section-actions > .btn { min-height: 40px; padding-inline: 15px; border-radius: 999px; }
+.app-projects { margin-bottom: 42px; }
+.app-templates { padding-top: 34px; }
+.app-template-groups { gap: 24px; }
+.app-template-groups .size-card { min-height: 132px; }
+.app-template-groups .size-grid { gap: 10px; }
+@media (max-width: 620px) {
+  .app-section-head { align-items: flex-start; gap: 12px; }
+  .app-section-actions { align-self: flex-end; gap: 10px; }
+  .app-section-actions .section-link { display: none; }
+  .app-section-actions > .btn { min-height: 36px; padding-inline: 12px; font-size: 12px; }
+}

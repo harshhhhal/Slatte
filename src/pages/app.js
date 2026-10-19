@@ -34,7 +34,9 @@ export async function renderApp(ctx) {
   const projectList = h('ul.project-grid', { 'aria-label': 'Your projects' });
   const projectSection = h('section.app-projects#projects', h('div.app-section-head',
     h('div', h('p.eyebrow', 'Your work, all together'), h('h2', 'Recent projects'), h('p.section-note', 'Pick up where you left off.')),
-    h('a.section-link', { href: '#templates' }, 'Browse canvases', h('span', { html: icon('arrow-right', 15) }))),
+    h('div.app-section-actions',
+      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design'),
+      h('a.section-link', { href: '#templates' }, 'Browse canvases', h('span', { html: icon('arrow-right', 15) })))),
     projectList);
 
   const loadProjects = async () => {
@@ -82,15 +84,7 @@ export async function renderApp(ctx) {
   const root = h('div.landing.app-home',
     h('header.nav.app-nav', h('a.brand', { href: '/', 'data-link': '', 'aria-label': 'Slatte home', html: `${logoMark(26)}<span>Slatte</span>` }),
       h('div.nav-actions', themeButton)),
-    h('main#main.app-main',
-      h('section.app-welcome',
-        h('div.app-welcome-copy', h('p.eyebrow', 'Your creative space'), h('h1', 'Good ideas\nstart somewhere.'),
-          h('p', 'Make that somewhere yours.'),
-          h('button.btn.btn-primary.btn-lg', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 17) }), 'New design')),
-        h('div.app-welcome-art', { 'aria-hidden': 'true' },
-          h('div.welcome-paper.paper-back'), h('div.welcome-paper.paper-front', h('span', 'SLATTE / STUDIO'), h('i'), h('b'), h('em')),
-          h('span.welcome-spark.spark-one', '✳'), h('span.welcome-spark.spark-two', '✳'))),
-      projectSection,
+    h('main#main.app-main', projectSection,
       h('section.app-templates#templates', h('div.app-section-head', h('div', h('p.eyebrow', 'Start with a format'), h('h2', 'Find your canvas'), h('p.section-note', 'A good fit for every idea.')),
         h('button.btn', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, 'Custom size')),
       h('div.app-template-groups', presetGroups((preset, button) => {
