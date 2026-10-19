@@ -395,17 +395,7 @@ export async function renderEditor(ctx) {
       const name = h('span.page-popup-name', page.name);
       const item = h('div.page-popup-item', { class: active ? 'active' : '' },
         h('button.page-popup-select', { type: 'button', 'aria-current': active ? 'page' : null, 'aria-label': `Show ${page.name}`, onclick: () => editor.setActivePage(page.id) },
-          h('span.page-popup-num', String(i + 1)), h('span.page-popup-meta', name, h('span.page-popup-size', `${page.width} × ${page.height}`))),
-        h('button.page-popup-more', { type: 'button', 'aria-label': `Options for ${page.name}`, title: 'Page options', 'aria-haspopup': 'menu', html: icon('more', 15), onclick: (e) => {
-          e.stopPropagation();
-          showMenu(e.currentTarget, [
-            { label: 'Move up', icon: 'chevronUp', disabled: i === 0, onClick: () => editor.movePage(page.id, i - 1) },
-            { label: 'Move down', icon: 'chevronDown', disabled: i === editor.doc.pages.length - 1, onClick: () => editor.movePage(page.id, i + 1) },
-            { separator: true },
-            { label: 'Duplicate page', icon: 'copy', onClick: () => editor.duplicatePage(page.id) },
-            { label: 'Delete page', icon: 'trash', disabled: editor.doc.pages.length <= 1, onClick: async () => { if (await confirmDialog({ title: 'Delete page?', message: `“${page.name}” and everything on it will be removed. You can undo this.`, confirmLabel: 'Delete page', danger: true })) editor.removePage(page.id); } },
-          ], { align: 'end' });
-        } }));
+          h('span.page-popup-num', String(i + 1)), h('span.page-popup-meta', name, h('span.page-popup-size', `${page.width} × ${page.height}`))));
       name.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         const input = h('input.page-popup-rename', { value: page.name, 'aria-label': 'Page name', maxLength: 80 });

@@ -46,6 +46,7 @@ export const ICONS = {
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/>',
   trash: P('M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3'),
   chevronDown: P('M6 9l6 6 6-6'),
+  chevronLeft: P('M15 6l-6 6 6 6'),
   chevronRight: P('M9 6l6 6-6 6'),
   chevronUp: P('M6 15l6-6 6 6'),
   alignLeft: '<path d="M4 3v18"/><rect x="7" y="6" width="12" height="4" rx="1"/><rect x="7" y="14" width="7" height="4" rx="1"/>',

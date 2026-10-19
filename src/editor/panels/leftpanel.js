@@ -52,6 +52,7 @@ export function createLeftPanel(app) {
     tabBar.append(b);
     return b;
   });
+  tabBtns[0].setAttribute('aria-selected', 'true');
   tabBar.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
     const i = TABS.findIndex((t) => t.id === tab);
@@ -87,7 +88,6 @@ export function createLeftPanel(app) {
     open = false;
     root.classList.remove('open');
     flyout.hidden = true;
-    tabBtns.forEach((b) => b.setAttribute('aria-selected', 'false'));
   }
 
   const outside = (e) => { if (open && !root.contains(e.target)) close(); };

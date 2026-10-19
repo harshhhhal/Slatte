@@ -5,6 +5,8 @@ import { clamp, localToWorld, rotatePoint, DEG } from '../utils/geometry.js';
 import { createObject, isContainer } from '../core/document-model.js';
 import { fonts } from '../services/font-service.js';
 import { fitText, invalidateTextCache } from '../core/text-layout.js';
+import { icon } from '../core/icons.js';
+import { confirmDialog } from '../ui/ui.js';
 
 export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 32;
@@ -37,6 +39,7 @@ export class Stage {
     this.pan = null;
     this.pagePositions = new Map();
     this.pageSvgs = new Map();
+    this.pageActions = new Map();
     this.width = 0;
     this.height = 0;
     this.dirty = { render: true, overlay: true };
@@ -288,9 +291,56 @@ export class Stage {
       }
     }
     this.svg = this.pageSvgs.get(ed.page.id) || null;
+    this._renderPageActions();
     // forget canvases of layers that no longer exist
     for (const id of [...this.raster.layers.keys()]) if (!ed.get(id)) this.raster.forget(id);
     this._renderRulers();
+  }
+
+  _renderPageActions() {
+    const { editor: ed } = this;
+    const pages = ed.doc.pages;
+    const activeIds = new Set(pages.map((page) => page.id));
+    for (const [id, toolbar] of this.pageActions) if (!activeIds.has(id)) {
+      toolbar.remove();
+      this.pageActions.delete(id);
+    }
+    const button = (name, label, onClick) => h('button.page-action', {
+      type: 'button', title: label, 'aria-label': label, html: icon(name, 14),
+      onclick: (event) => { event.stopPropagation(); onClick(); },
+    });
+    pages.forEach((page, index) => {
+      let toolbar = this.pageActions.get(page.id);
+      if (!toolbar) {
+        toolbar = h('div.artboard-actions', { 'aria-label': `Actions for ${page.name}` });
+        this.pageActions.set(page.id, toolbar);
+        this.overlayHost.append(toolbar);
+      }
+      toolbar.setAttribute('aria-label', `Actions for ${page.name}`);
+      toolbar.replaceChildren(
+        button('chevronLeft', 'Move page left', () => {
+          const at = ed.doc.pages.findIndex((p) => p.id === page.id);
+          if (at > 0) ed.movePage(page.id, at - 1);
+        }),
+        button('chevronRight', 'Move page right', () => {
+          const at = ed.doc.pages.findIndex((p) => p.id === page.id);
+          if (at >= 0 && at < ed.doc.pages.length - 1) ed.movePage(page.id, at + 1);
+        }),
+        button('copy', 'Duplicate page', () => ed.duplicatePage(page.id)),
+        button('trash', 'Delete page', async () => {
+          if (ed.doc.pages.length <= 1) return;
+          if (await confirmDialog({ title: 'Delete page?', message: `“${page.name}” and everything on it will be removed. You can undo this.`, confirmLabel: 'Delete page', danger: true })) ed.removePage(page.id);
+        }),
+      );
+      const pos = this.pagePositions.get(page.id) || { x: 0, y: 0 };
+      const left = (pos.x + page.width) * ed.viewport.zoom + ed.viewport.x - toolbar.offsetWidth;
+      const top = pos.y * ed.viewport.zoom + ed.viewport.y - toolbar.offsetHeight - 8;
+      toolbar.style.left = `${f(left)}px`;
+      toolbar.style.top = `${f(top)}px`;
+      toolbar.querySelectorAll('.page-action').forEach((btn, actionIndex) => {
+        btn.disabled = (actionIndex === 0 && index === 0) || (actionIndex === 1 && index === pages.length - 1) || (actionIndex === 3 && pages.length <= 1);
+      });
+    });
   }
 
   /* ------------------------------ overlay ------------------------------ */
