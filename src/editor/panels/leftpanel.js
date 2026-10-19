@@ -30,6 +30,10 @@ function stateBox(kind, title, text, action) {
 }
 
 const spinner = (label) => h('div.state.state-loading', { role: 'status' }, h('span.spin'), h('span', label));
+const dragElement = (event, data) => {
+  event.dataTransfer.effectAllowed = 'copy';
+  event.dataTransfer.setData('application/x-slatte-element', JSON.stringify(data));
+};
 
 export function createLeftPanel(app) {
   const { editor } = app;
@@ -127,11 +131,11 @@ export function createLeftPanel(app) {
     const grid = h('div.tile-grid', shapes.map(([k, ic, label]) => h('button.tile', {
       type: 'button', draggable: 'true', title: `Add ${label.toLowerCase()} or drag to canvas`, 'aria-label': `Add ${label.toLowerCase()}`,
       onclick: () => insertShape(k),
-      ondragstart: (e) => { e.dataTransfer.effectAllowed = 'copy'; e.dataTransfer.setData('application/x-slatte-element', JSON.stringify({ kind: 'shape', shape: k })); },
+      ondragstart: (e) => dragElement(e, { kind: 'shape', shape: k }),
     }, h('span', { html: icon(ic, 30) }), h('span.tile-label', label))));
     const textPreset = (text, label, size, weight) => h('button.text-preset', {
       type: 'button', draggable: 'true', onclick: () => addTextObject(editor, { text, size: Math.round(editor.page.width / size), weight }),
-      ondragstart: (e) => { e.dataTransfer.effectAllowed = 'copy'; e.dataTransfer.setData('application/x-slatte-element', JSON.stringify({ kind: 'text', text, size: Math.round(editor.page.width / size), weight })); },
+      ondragstart: (e) => dragElement(e, { kind: 'text', text, size: Math.round(editor.page.width / size), weight }),
     }, label);
     const texts = h('div.text-presets',
       textPreset('Add a heading', 'Add a heading', 12, 700),
@@ -146,7 +150,8 @@ export function createLeftPanel(app) {
   const iconsTab = () => {
     const results = h('div.results');
     const local = h('div.tile-grid.small', LOCAL_ICONS.map((i) => h('button.tile.icon-tile', {
-      type: 'button', title: i.label, 'aria-label': `Add ${i.label} icon`, onclick: () => insertLocalIcon(editor, i.name),
+      type: 'button', draggable: 'true', title: i.label, 'aria-label': `Add ${i.label} icon`, onclick: () => insertLocalIcon(editor, i.name),
+      ondragstart: (e) => dragElement(e, { kind: 'local-icon', name: i.name }),
       html: `<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">${localIconMarkup(i.name)}</svg>`,
     })));
     let seq = 0;
@@ -160,7 +165,8 @@ export function createLeftPanel(app) {
         if (my !== seq) return;
         if (!icons.length) { results.replaceChildren(stateBox('empty', 'No matching icons', `Nothing found for “${q}”. Try a simpler word.`)); return; }
         const grid = h('div.tile-grid.small', icons.map((ic) => h('button.tile.icon-tile', {
-          type: 'button', title: `${ic.name} — ${ic.set} (${ic.license})`, 'aria-label': `Add ${ic.name} icon from ${ic.set}`,
+          type: 'button', draggable: 'true', title: `${ic.name} — ${ic.set} (${ic.license})`, 'aria-label': `Add ${ic.name} icon from ${ic.set}`,
+          ondragstart: (e) => dragElement(e, { kind: 'remote-icon', icon: ic }),
           onclick: async (e) => {
             const btn = e.currentTarget;
             btn.disabled = true;
@@ -195,7 +201,8 @@ export function createLeftPanel(app) {
         const grid = append ? results.querySelector('.photo-grid') : h('div.photo-grid');
         for (const it of items) {
           grid.append(h('figure.photo', h('button.photo-btn', {
-            type: 'button', title: `Add “${it.title}”`, 'aria-label': `Add image ${it.title} by ${it.creator}`,
+            type: 'button', draggable: 'true', title: `Add “${it.title}”`, 'aria-label': `Add image ${it.title} by ${it.creator}`,
+            ondragstart: (e) => dragElement(e, { kind: 'openverse-image', item: it }),
             onclick: async (e) => {
               const b = e.currentTarget;
               b.disabled = true; b.classList.add('busy');
@@ -227,7 +234,8 @@ export function createLeftPanel(app) {
       let url = '';
       try { url = textureDataUrl(o); } catch { /* ignore */ }
       return h('button.tile.tex-tile', {
-        type: 'button', title: `Add ${k} texture`, 'aria-label': `Add ${k} texture`,
+        type: 'button', draggable: 'true', title: `Add ${k} texture`, 'aria-label': `Add ${k} texture`,
+        ondragstart: (e) => dragElement(e, { kind: 'texture', texture: k }),
         onclick: () => {
           const t = createObject('texture', {
             kind: k, x: 0, y: 0, width: page.width, height: page.height, scale: k === 'paper' || k === 'noise' ? 60 : Math.max(12, Math.round(page.width / 60)),
@@ -250,7 +258,8 @@ export function createLeftPanel(app) {
       const cv = h('canvas', { width: 120, height: 34 });
       requestAnimationFrame(() => drawPresetPreview(cv, p, getComputedStyle(root).getPropertyValue('--text').trim() || '#18181b'));
       return h('button.brush-btn', {
-        type: 'button', 'aria-label': `${p.name} brush`, title: p.name,
+        type: 'button', draggable: 'true', 'aria-label': `${p.name} brush`, title: p.name,
+        ondragstart: (e) => dragElement(e, { kind: 'brush', preset: p.id }),
         onclick: () => { b.preset = p.id; editor.setTool('brush'); editor.emit('brush'); },
       }, cv, h('span', p.name));
     }));
@@ -272,7 +281,8 @@ export function createLeftPanel(app) {
         const nameEl = h('span.font-name', { style: { fontFamily: st === 'loaded' ? `"${f.family}"` : 'inherit' } }, f.family);
         const li = h('li.font-item',
           h('button.font-btn', {
-            type: 'button', title: `Use ${f.family}`,
+            type: 'button', draggable: 'true', title: `Use ${f.family}`,
+            ondragstart: (e) => dragElement(e, { kind: 'font', family: f.family }),
             onclick: async () => {
               li.classList.add('loading');
               const status = await fonts.load(f.family);
@@ -316,7 +326,10 @@ export function createLeftPanel(app) {
       for (const a of assets) {
         const url = a.kind === 'image' ? editor.assets.url(a.id) : null;
         const credit = a.source && a.source.provider === 'openverse' ? a.source : null;
-        grid.append(h('div.asset',
+        grid.append(h('div.asset', {
+          draggable: a.kind === 'image' ? 'true' : null,
+          ondragstart: a.kind === 'image' ? (e) => dragElement(e, { kind: 'asset-image', assetId: a.id }) : null,
+        },
           a.kind === 'image' && url ? h('img', { src: url, alt: '', width: 48, height: 48 }) : h('span.asset-ic', { html: icon(a.kind === 'font' ? 'type' : 'image', 20) }),
           h('div.asset-info', h('span.asset-name', { title: a.name }, a.name), h('span.asset-meta', `${a.kind === 'font' ? 'Font' : `${a.width}×${a.height}`} · ${formatBytes(a.size)}`),
             credit ? h('span.asset-credit', `Credit: ${credit.creator} · ${credit.license}`) : null),
@@ -347,6 +360,6 @@ export function createLeftPanel(app) {
   };
 
   const builders = { elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, brushes: brushesTab, fonts: fontsTab, uploads: uploadsTab };
-  tabBtns.forEach((b) => { b.setAttribute('aria-selected', 'false'); b.tabIndex = 0; });
+  tabBtns.forEach((b, i) => { b.setAttribute('aria-selected', String(i === 0)); b.tabIndex = i === 0 ? 0 : -1; });
   return { el: root, show, destroy: () => { cleanups.splice(0).forEach((c) => c()); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape, true); } };
 }

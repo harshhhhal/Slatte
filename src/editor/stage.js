@@ -6,7 +6,8 @@ import { createObject, isContainer } from '../core/document-model.js';
 import { fonts } from '../services/font-service.js';
 import { fitText, invalidateTextCache } from '../core/text-layout.js';
 import { icon } from '../core/icons.js';
-import { confirmDialog } from '../ui/ui.js';
+import { confirmDialog, toast } from '../ui/ui.js';
+import { insertLocalIcon, insertOpenverseImage, insertRemoteIcon } from '../services/asset-import.js';
 
 export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 32;
@@ -660,12 +661,35 @@ export class Stage {
           const obj = createObject(type, { width: side, height: side, ...props });
           obj.x = s.x - obj.width / 2; obj.y = s.y - obj.height / 2;
           this.editor.addObjects([obj], { label: `Add ${data.shape || 'shape'}` });
-        } else if (data.kind === 'text') {
-          const obj = createObject('text', { text: data.text || 'Text', fontSize: data.size || 48, fontWeight: data.weight || 400, fontFamily: 'Inter', name: 'Text' });
+        } else if (data.kind === 'text' || data.kind === 'font') {
+          const family = data.family || 'Inter';
+          const obj = createObject('text', { text: data.text || family, fontSize: data.size || Math.round(page.width / 18), fontWeight: data.weight || 400, fontFamily: family, name: 'Text' });
           fitText(obj);
           obj.x = s.x - obj.width / 2; obj.y = s.y - obj.height / 2;
           this.editor.addObjects([obj], { label: 'Add text' });
-          fonts.load('Inter').then(() => this.editor.change('Update text', (p) => { const found = p.objects.find((o) => o.id === obj.id); if (found) fitText(found); }));
+          fonts.load(family).then(() => this.editor.change('Update text', (p) => { const found = p.objects.find((o) => o.id === obj.id); if (found) fitText(found); }));
+        } else if (data.kind === 'local-icon') {
+          insertLocalIcon(this.editor, data.name, s);
+        } else if (data.kind === 'remote-icon') {
+          insertRemoteIcon(this.editor, data.icon, s).catch((err) => toast(err.message || 'Could not add that icon.', { kind: 'error' }));
+        } else if (data.kind === 'openverse-image') {
+          insertOpenverseImage(this.editor, data.item, s).catch((err) => toast(err.message || 'Could not add that image.', { kind: 'error' }));
+        } else if (data.kind === 'asset-image') {
+          const asset = this.editor.doc.assets[data.assetId];
+          if (asset) {
+            const scale = Math.min(1, (page.width * 0.6) / Math.max(1, asset.width), (page.height * 0.6) / Math.max(1, asset.height));
+            const obj = createObject('image', { name: asset.name || 'Image', assetId: asset.id, width: asset.width * scale, height: asset.height * scale, naturalWidth: asset.width, naturalHeight: asset.height });
+            obj.x = s.x - obj.width / 2; obj.y = s.y - obj.height / 2;
+            this.editor.addObjects([obj], { label: 'Add image' });
+          }
+        } else if (data.kind === 'texture') {
+          const size = Math.min(page.width, page.height) * 0.5;
+          const obj = createObject('texture', { kind: data.texture, x: s.x - size / 2, y: s.y - size / 2, width: size, height: size, scale: ['paper', 'noise'].includes(data.texture) ? 60 : Math.max(12, Math.round(page.width / 60)), intensity: 0.45, density: 0.5, name: `${data.texture[0].toUpperCase()}${data.texture.slice(1)} texture`, blendMode: ['paper', 'noise'].includes(data.texture) ? 'multiply' : 'normal' });
+          this.editor.addObjects([obj], { label: 'Add texture' });
+        } else if (data.kind === 'brush') {
+          this.editor.toolOptions.brush.preset = data.preset;
+          this.editor.setTool('brush');
+          this.editor.emit('brush');
         }
       } catch { /* ignore invalid internal drag payloads */ }
       return;

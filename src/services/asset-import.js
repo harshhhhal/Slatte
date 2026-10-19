@@ -95,7 +95,7 @@ export async function importFiles(editor, files, at, { onProject } = {}) {
 }
 
 /** Inserts a downloaded Iconify icon. */
-export async function insertRemoteIcon(editor, icon) {
+export async function insertRemoteIcon(editor, icon, at = null) {
   const { svg, viewBox } = await fetchIcon(icon.prefix, icon.name);
   const size = Math.min(editor.page.width, editor.page.height) * 0.18;
   const ar = viewBox[2] / viewBox[3];
@@ -104,29 +104,29 @@ export async function insertRemoteIcon(editor, icon) {
     source: { provider: 'iconify', prefix: icon.prefix, name: icon.name, license: icon.license, author: icon.author, set: icon.set },
     fill: solid('#18181b'),
   });
-  placeCentered(editor, [o], null);
+  placeCentered(editor, [o], at);
   editor.addObjects([o], { label: 'Add icon' });
   return o;
 }
 
-export function insertLocalIcon(editor, name) {
+export function insertLocalIcon(editor, name, at = null) {
   const size = Math.min(editor.page.width, editor.page.height) * 0.18;
   const o = createObject('icon', {
     name, svg: localIconMarkup(name), viewBox: [0, 0, 24, 24], width: size, height: size,
     source: { provider: 'slatte', name, license: 'Original to Slatte', author: 'Slatte' }, fill: solid('#18181b'),
   });
-  placeCentered(editor, [o], null);
+  placeCentered(editor, [o], at);
   editor.addObjects([o], { label: 'Add icon' });
   return o;
 }
 
-export async function insertOpenverseImage(editor, item) {
+export async function insertOpenverseImage(editor, item, at = null) {
   const blob = await fetchOpenverseImage(item);
   const prep = await prepareImage(new File([blob], `${item.title.slice(0, 40) || 'openverse'}.${(blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')}`, { type: blob.type }));
   return placeImageBlob(editor, prep.blob, {
     name: item.title, width: prep.width, height: prep.height,
     source: { provider: 'openverse', id: item.id, title: item.title, creator: item.creator, creatorUrl: item.creatorUrl, license: item.license, licenseUrl: item.licenseUrl, landingUrl: item.landingUrl },
-  });
+  }, at);
 }
 
 export function addTextObject(editor, { text = 'Add a heading', size = 96, weight = 700, family = 'Inter' } = {}) {
