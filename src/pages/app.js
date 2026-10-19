@@ -39,6 +39,7 @@ export async function renderApp(ctx) {
       h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design')),
     h('div.app-welcome-art', { 'aria-hidden': 'true' },
       h('span.welcome-paper.paper-back'),
+      h('span.welcome-paper.paper-mid'),
       h('div.welcome-paper.paper-front', h('span', 'SLATTE / STUDIO'), h('i'), h('b'), h('em')),
       h('span.welcome-spark.spark-one', '✳'), h('span.welcome-spark.spark-two', '✳')));
   const projectCount = h('span.app-project-count', '0 projects');

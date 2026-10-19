@@ -42,9 +42,11 @@ export async function renderLanding(ctx) {
   const featureItems = CAPABILITIES.map(([ic, title]) => h('li.cap',
     h('span.cap-icon', { html: icon(ic, 22) }), h('h3', title)));
   const featureTrack = h('ul.cap-track', featureItems);
-  const featureDeck = h('div.cap-carousel', { role: 'region', 'aria-label': 'Slatte features' }, featureTrack);
+  const featureDeck = h('div.cap-carousel', { role: 'region', 'aria-label': 'Slatte features', tabindex: 0 }, featureTrack);
   let activeFeature = 0;
   let featureTimer;
+  let dragStart;
+  let manualPause = false;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const syncFeatureDeck = () => {
     featureItems.forEach((item, index) => {
@@ -57,16 +59,43 @@ export async function renderLanding(ctx) {
   const stopFeatureDeck = () => { clearInterval(featureTimer); featureTimer = undefined; };
   const startFeatureDeck = () => {
     stopFeatureDeck();
-    if (reducedMotion.matches || document.hidden) return;
+    if (reducedMotion.matches || document.hidden || manualPause) return;
     featureTimer = setInterval(() => {
       activeFeature = (activeFeature + 1) % CAPABILITIES.length;
       syncFeatureDeck();
-    }, 4400);
+    }, 3900);
   };
-  featureDeck.addEventListener('mouseenter', stopFeatureDeck);
-  featureDeck.addEventListener('mouseleave', startFeatureDeck);
-  featureDeck.addEventListener('focusin', stopFeatureDeck);
-  featureDeck.addEventListener('focusout', startFeatureDeck);
+  const manualStep = (direction) => {
+    manualPause = true;
+    stopFeatureDeck();
+    activeFeature = (activeFeature + direction + CAPABILITIES.length) % CAPABILITIES.length;
+    syncFeatureDeck();
+  };
+  featureDeck.addEventListener('wheel', (event) => {
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (Math.abs(delta) < 12) return;
+    event.preventDefault();
+    manualStep(delta > 0 ? 1 : -1);
+  }, { passive: false });
+  featureDeck.addEventListener('pointerdown', (event) => {
+    dragStart = event.clientX;
+    featureDeck.setPointerCapture(event.pointerId);
+  });
+  featureDeck.addEventListener('pointerup', (event) => {
+    if (dragStart === undefined) return;
+    const distance = dragStart - event.clientX;
+    dragStart = undefined;
+    if (Math.abs(distance) > 36) manualStep(distance > 0 ? 1 : -1);
+  });
+  featureDeck.addEventListener('pointercancel', () => { dragStart = undefined; });
+  featureDeck.addEventListener('mouseleave', () => { manualPause = false; startFeatureDeck(); });
+  featureDeck.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      manualStep(event.key === 'ArrowRight' ? 1 : -1);
+    }
+  });
+  featureDeck.addEventListener('focusout', () => { manualPause = false; startFeatureDeck(); });
   document.addEventListener('visibilitychange', startFeatureDeck);
   const onMotionChange = () => { syncFeatureDeck(); startFeatureDeck(); };
   reducedMotion.addEventListener('change', onMotionChange);
