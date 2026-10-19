@@ -63,7 +63,7 @@ export async function renderLanding(ctx) {
     featureTimer = setInterval(() => {
       activeFeature = (activeFeature + 1) % CAPABILITIES.length;
       syncFeatureDeck();
-    }, 4400);
+    }, 1800);
   };
   const manualStep = (direction) => {
     manualPause = true;
