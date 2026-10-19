@@ -794,7 +794,3 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
   .pv-second-title { font-size: 11px; }
   .pv-dock-tool { width: 23px; height: 24px; }
 }
-
-/* Accent cursor in the app workspace and project library. */
-.app-home, .editor-app { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v17l4.8-4.4 3.3 7 3.2-1.5-3.4-7.1 6.7-.2z' fill='%2302c470' stroke='%231d1c1a' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto; }
-.app-home :is(a, button):not(:disabled), .editor-app :is(a, button, [role='button']):not(:disabled) { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v17l4.8-4.4 3.3 7 3.2-1.5-3.4-7.1 6.7-.2z' fill='%2302c470' stroke='%231d1c1a' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, pointer; }
