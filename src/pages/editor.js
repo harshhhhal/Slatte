@@ -362,11 +362,65 @@ export async function renderEditor(ctx) {
   };
 
   const stageWrap = h('main.stage-wrap', { id: 'main' }, stage.el);
+  const pagePopup = h('section.page-popup', { 'aria-label': 'Pages', hidden: true });
+  const pageTrigger = h('button.tool-btn.page-tool', { type: 'button', 'aria-label': 'Pages', title: 'Pages', 'aria-expanded': 'false', html: icon('pages', 20) });
+  rail.el.append(h('div.rail-sep', { role: 'separator' }), pageTrigger);
+  let pagePopupOpen = false;
+  pageTrigger.addEventListener('click', () => {
+    pagePopupOpen = !pagePopupOpen;
+    pagePopup.hidden = !pagePopupOpen;
+    pageTrigger.setAttribute('aria-expanded', String(pagePopupOpen));
+    pageTrigger.classList.toggle('active', pagePopupOpen);
+    if (pagePopupOpen) requestAnimationFrame(positionPagePopup);
+  });
+  const positionPagePopup = () => {
+    if (!pagePopupOpen) return;
+    const workspace = pagePopup.parentElement;
+    const wr = workspace.getBoundingClientRect();
+    const br = pageTrigger.getBoundingClientRect();
+    pagePopup.style.left = `${Math.max(8, Math.min(wr.width - pagePopup.offsetWidth - 8, br.left - wr.left + br.width - pagePopup.offsetWidth))}px`;
+    pagePopup.style.bottom = `${Math.max(72, wr.bottom - br.top + 8)}px`;
+  };
+  const paintPages = () => {
+    pagePopup.replaceChildren(
+      h('div.page-popup-head', h('strong', 'Pages'), h('button.page-popup-add', { type: 'button', 'aria-label': 'Add page', title: 'Add page', html: icon('plus', 17), onclick: () => actions.newPageDialog() })),
+      h('div.page-popup-list', editor.doc.pages.map((page, i) => {
+      const active = page.id === editor.doc.activePageId;
+      const name = h('span.page-popup-name', page.name);
+      const item = h('div.page-popup-item', { class: active ? 'active' : '' },
+        h('button.page-popup-select', { type: 'button', 'aria-current': active ? 'page' : null, 'aria-label': `Show ${page.name}`, onclick: () => editor.setActivePage(page.id) },
+          h('span.page-popup-num', String(i + 1)), h('span.page-popup-meta', name, h('span.page-popup-size', `${page.width} × ${page.height}`))),
+        h('button.page-popup-more', { type: 'button', 'aria-label': `Options for ${page.name}`, title: 'Page options', 'aria-haspopup': 'menu', html: icon('more', 15), onclick: (e) => {
+          e.stopPropagation();
+          showMenu(e.currentTarget, [
+            { label: 'Move up', icon: 'chevronUp', disabled: i === 0, onClick: () => editor.movePage(page.id, i - 1) },
+            { label: 'Move down', icon: 'chevronDown', disabled: i === editor.doc.pages.length - 1, onClick: () => editor.movePage(page.id, i + 1) },
+            { separator: true },
+            { label: 'Duplicate page', icon: 'copy', onClick: () => editor.duplicatePage(page.id) },
+            { label: 'Delete page', icon: 'trash', disabled: editor.doc.pages.length <= 1, onClick: async () => { if (await confirmDialog({ title: 'Delete page?', message: `“${page.name}” and everything on it will be removed. You can undo this.`, confirmLabel: 'Delete page', danger: true })) editor.removePage(page.id); } },
+          ], { align: 'end' });
+        } }));
+      name.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const input = h('input.page-popup-rename', { value: page.name, 'aria-label': 'Page name', maxLength: 80 });
+        name.replaceWith(input); input.focus(); input.select();
+        const done = (save) => { if (!input.isConnected) return; if (save && input.value.trim()) editor.setPageProps({ name: input.value.trim() }, { id: page.id, key: null }); else paintPages(); };
+        input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') done(true); else if (ev.key === 'Escape') done(false); ev.stopPropagation(); });
+        input.addEventListener('blur', () => done(true));
+      });
+      return item;
+    })));
+    if (pagePopupOpen) requestAnimationFrame(positionPagePopup);
+  };
+  paintPages();
+  d.add(editor.on('page', paintPages));
+  d.add(editor.on('change', (e) => { if (e?.committed) paintPages(); }));
+  d.listen(window, 'resize', positionPagePopup);
   const scrim = h('div.scrim', { onclick: () => { state.leftOpen = false; state.rightOpen = false; applyLayout(); } });
   const root = h('div.editor-app',
     h('a.skip', { href: '#main' }, 'Skip to canvas'),
     topbar,
-    h('div.workspace', leftPanel, resizer('left'), stageWrap, rail.el, resizer('right'), rightPanel, scrim),
+    h('div.workspace', leftPanel, resizer('left'), stageWrap, rail.el, pagePopup, resizer('right'), rightPanel, scrim),
     statusbar);
   root.style.setProperty('--left-w', `${layout.left}px`);
   root.style.setProperty('--right-w', `${layout.right}px`);

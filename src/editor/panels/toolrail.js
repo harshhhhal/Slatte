@@ -28,7 +28,6 @@ const TOOLS = [
     ],
   },
   { id: 'text', icon: 'text', label: 'Text', key: 'T' },
-  { id: 'image', icon: 'image', label: 'Image…', key: 'Shift+I' },
   { id: 'gradient', icon: 'gradient', label: 'Gradient', key: 'G' },
   { id: 'eyedropper', icon: 'eyedropper', label: 'Eyedropper', key: 'I' },
   { id: 'hand', icon: 'hand', label: 'Hand', key: 'H' },

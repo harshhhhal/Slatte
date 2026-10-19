@@ -10,11 +10,10 @@ import { textureDataUrl } from '../../services/texture-service.js';
 import { describeError } from '../../utils/errors.js';
 import { formatBytes } from '../../utils/file-validation.js';
 import { iconButton } from '../../ui/controls.js';
-import { confirmDialog, openDialog, toast } from '../../ui/ui.js';
+import { openDialog, toast } from '../../ui/ui.js';
 import { localIconMarkup } from '../../services/icon-service.js';
 
 const TABS = [
-  { id: 'pages', icon: 'pages', label: 'Pages' },
   { id: 'elements', icon: 'shapes', label: 'Elements' },
   { id: 'icons', icon: 'smile', label: 'Icons' },
   { id: 'photos', icon: 'image', label: 'Photos' },
@@ -83,41 +82,6 @@ export function createLeftPanel(app) {
     input.addEventListener('input', d);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { d.cancel(); onInput(input.value); } e.stopPropagation(); });
     return input;
-  };
-
-  /* ------------------------------- pages ------------------------------- */
-
-  const pagesTab = () => {
-    const list = h('ul.page-list', { 'aria-label': 'Pages' });
-    const render = () => {
-      list.replaceChildren(...editor.doc.pages.map((p, i) => {
-        const active = p.id === editor.doc.activePageId;
-        const nameEl = h('span.page-name', p.name);
-        const li = h('li.page-item', { class: active ? 'active' : '' },
-          h('button.page-btn', { type: 'button', 'aria-current': active ? 'page' : null, onclick: () => editor.setActivePage(p.id) },
-            h('span.page-num', String(i + 1)), h('span.page-meta', nameEl, h('span.page-size', `${p.width} × ${p.height}`))),
-          h('div.page-acts',
-            iconButton({ name: 'chevronUp', label: `Move ${p.name} up`, disabled: i === 0, size: 14, onClick: () => editor.movePage(p.id, i - 1) }),
-            iconButton({ name: 'chevronDown', label: `Move ${p.name} down`, disabled: i === editor.doc.pages.length - 1, size: 14, onClick: () => editor.movePage(p.id, i + 1) }),
-            iconButton({ name: 'copy', label: `Duplicate ${p.name}`, size: 14, onClick: () => editor.duplicatePage(p.id) }),
-            iconButton({
-              name: 'trash', label: `Delete ${p.name}`, size: 14, disabled: editor.doc.pages.length <= 1,
-              onClick: async () => { if (await confirmDialog({ title: 'Delete page?', message: `“${p.name}” and everything on it will be removed. You can undo this.`, confirmLabel: 'Delete page', danger: true })) editor.removePage(p.id); },
-            })));
-        nameEl.addEventListener('dblclick', () => {
-          const inp = h('input.rename', { type: 'text', value: p.name, 'aria-label': 'Page name', maxLength: 80 });
-          nameEl.replaceWith(inp); inp.focus(); inp.select();
-          const done = (ok) => { if (!inp.isConnected) return; if (ok && inp.value.trim()) editor.setPageProps({ name: inp.value.trim() }, { id: p.id, key: null }); else render(); };
-          inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); else if (e.key === 'Escape') done(false); e.stopPropagation(); });
-          inp.addEventListener('blur', () => done(true));
-        });
-        return li;
-      }));
-    };
-    render();
-    cleanups.push(editor.on('page', render), editor.on('change', (e) => { if (e && e.committed) render(); }));
-    return h('div', list, h('button.btn.btn-block', { type: 'button', onclick: () => app.actions.newPageDialog() }, 'Add page…'),
-      h('p.hint', 'Each page is an independent artboard with its own size, background and layers. Double-click a name to rename it.'));
   };
 
   /* ------------------------------- elements ------------------------------- */
@@ -355,7 +319,7 @@ export function createLeftPanel(app) {
     return wrap;
   };
 
-  const builders = { pages: pagesTab, elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, brushes: brushesTab, fonts: fontsTab, uploads: uploadsTab };
+  const builders = { elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, brushes: brushesTab, fonts: fontsTab, uploads: uploadsTab };
   show(tab);
   return { el: root, show, destroy: () => cleanups.splice(0).forEach((c) => c()) };
 }
