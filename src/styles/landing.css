@@ -586,6 +586,9 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 .welcome-paper.paper-front { animation: app-paper-front 7s ease-in-out infinite; }
 .app-section-head { align-items: center; }
 .app-section-head h2 { letter-spacing: -.035em; }
+.app-project-actions { display: flex; align-items: center; gap: 9px; }
+.app-import-project { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 12px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
+.app-import-project:hover { border-color: var(--accent); color: var(--accent); }
 .app-project-count { flex: none; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); font-size: 12px; font-weight: 600; }
 .project-card { animation: project-card-enter .36s ease both; }
 .project-card:nth-child(2) { animation-delay: .04s; }

@@ -1,8 +1,8 @@
-import { h, Disposer } from '../utils/dom.js';
+import { h, Disposer, pickFiles } from '../utils/dom.js';
 import { icon, logoMark } from '../core/icons.js';
 import { toggleTheme, getTheme } from '../core/theme.js';
 import { storage } from '../services/project-storage.js';
-import { duplicateProject } from '../services/projects.js';
+import { duplicateProject, importProjectFile } from '../services/projects.js';
 import { confirmDialog, toast, showMenu } from '../ui/ui.js';
 import { describeError } from '../utils/errors.js';
 import { openNewDesignDialog } from './picker.js';
@@ -43,10 +43,21 @@ export async function renderApp(ctx) {
       h('div.welcome-paper.paper-front', h('span', 'SLATTE / STUDIO'), h('i'), h('b'), h('em')),
       h('span.welcome-spark.spark-one', '✳'), h('span.welcome-spark.spark-two', '✳')));
   const projectCount = h('span.app-project-count', '0 projects');
+  const importProject = async () => {
+    const files = await pickFiles({ accept: '.slt,application/zip', multiple: false });
+    if (!files.length) return;
+    try {
+      const { id, warnings } = await importProjectFile(files[0]);
+      if (warnings.length) toast(`Imported with notices: ${warnings[0]}`, { kind: 'warning', duration: 9000 });
+      else toast('Project imported', { kind: 'success' });
+      openEditor(id);
+    } catch (err) { toast(describeError(err, 'Could not import this project.'), { kind: 'error' }); }
+  };
+  const importButton = h('button.btn.app-import-project', { type: 'button', onclick: importProject }, h('span', { html: icon('upload', 15) }), 'Import project');
   const projectList = h('ul.project-grid', { 'aria-label': 'Your projects' });
   const projectSection = h('section.app-projects#projects', h('div.app-section-head',
     h('div', h('p.eyebrow', 'YOUR WORK'), h('h2', 'Recent projects'), h('p.section-note', 'Pick up where you left off.')),
-    projectCount),
+    h('div.app-project-actions', importButton, projectCount)),
     projectList);
 
   const loadProjects = async () => {
