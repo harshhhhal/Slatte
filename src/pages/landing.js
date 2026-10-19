@@ -106,6 +106,9 @@ export async function renderLanding(ctx) {
     h('a.skip', { href: '#main' }, 'Skip to content'),
     h('header.nav',
       h('a.brand', { href: '/', 'data-link': '', 'aria-label': 'Slatte home', html: `${logoMark(26)}<span>Slatte</span>` }),
+      h('nav.nav-links', { 'aria-label': 'Main navigation' },
+        h('a', { href: '/about', 'data-link': '' }, 'About'),
+        h('a', { href: '/help', 'data-link': '' }, 'Help')),
       h('div.nav-actions', themeBtn)),
     h('main#main',
       h('section.hero',
@@ -129,10 +132,7 @@ export async function renderLanding(ctx) {
       ),
     h('footer.footer',
       h('span', `© ${new Date().getFullYear()} Slatte`),
-      h('span.muted', 'Made for ideas, built for your device.'),
-      h('nav.footer-links', { 'aria-label': 'Slatte information' },
-        h('a', { href: '/about', 'data-link': '' }, 'About'),
-        h('a', { href: '/help', 'data-link': '' }, 'Help'))));
+      h('span.muted', 'Made for ideas, built for your device.')));
 
   ctx.outlet.append(root);
   const enterGroups = [

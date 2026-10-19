@@ -727,3 +727,6 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
   .app-home .app-projects { padding-top: 18px; }
   .app-home .app-section-head { align-items: end; }
 }
+
+/* Keep the landing links visible on compact headers. */
+.landing:not(.app-home) .nav-links { display: flex; gap: clamp(10px, 2vw, 20px); }
