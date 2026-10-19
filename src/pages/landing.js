@@ -57,16 +57,14 @@ export async function renderLanding(ctx) {
           h('div.hero-float.float-top', h('span.float-mark', '✳'), h('span', 'A fresh canvas')),
           h('div.hero-float.float-bottom', h('span.float-swatch'), h('span', 'Made your way')))),
       h('section.capabilities#capabilities', { 'aria-labelledby': 'cap-h' },
-        h('div.block-head', h('h2#cap-h', 'Everything you need, nothing in the way.')),
+        h('div.block-head', h('h2#cap-h', 'Tools for your\nnext good idea.')),
         h('div.cap-carousel', { role: 'region', 'aria-label': 'Slatte features' },
-          h('div.cap-track',
-            h('ul.cap-grid', CAPABILITIES.map(([ic, t]) => h('li.cap', h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t)))),
-            h('ul.cap-grid', { 'aria-hidden': 'true' }, CAPABILITIES.map(([ic, t]) => h('li.cap', h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t))))))),
+          h('ul.cap-track', CAPABILITIES.map(([ic, t], index) => h('li.cap', { style: { '--card-angle': `${index * 60}deg` } },
+            h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t)))))),
       h('section.make-strip', { 'aria-labelledby': 'make-h' },
         h('div.make-copy',
-          h('p.eyebrow', 'From first mark to final file'),
-          h('h2#make-h', 'Make it yours.'),
-          h('p', 'Shape a thought, find your rhythm, and take your work with you.')),
+          h('p.eyebrow', 'A few possibilities'),
+          h('h2#make-h', 'Made to make.')),
         h('div.make-gallery', { 'aria-label': 'Examples of designs you can create' },
           h('article.make-card.make-poster', h('span.make-card-kicker', '01 / POSTER'), h('span.make-poster-title', 'A little\nmore color'), h('i.make-poster-orb'), h('i.make-poster-line')),
           h('article.make-card.make-social', h('span.make-card-kicker', '02 / SOCIAL'), h('i.make-social-sun'), h('span.make-social-title', 'Stay curious'), h('i.make-social-wave')),
@@ -74,7 +72,7 @@ export async function renderLanding(ctx) {
       ),
     h('footer.footer',
       h('span', `© ${new Date().getFullYear()} Slatte`),
-      h('span.muted', 'Open files are never uploaded. Fonts, icons and stock photos are fetched from public services only when you search for them.')));
+      h('span.muted', 'Made for ideas, built for your device.')));
 
   ctx.outlet.append(root);
   return {

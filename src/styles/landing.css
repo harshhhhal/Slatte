@@ -527,29 +527,32 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
   .picker-presets.slide-next .size-grid, .picker-presets.slide-previous .size-grid { animation: none; }
 }
 
-/* Continuous feature carousel */
-.capabilities { grid-template-columns: minmax(250px, .72fr) minmax(0, 1.5fr); gap: clamp(28px, 5vw, 68px); }
-.capabilities .block-head h2 { max-width: 16ch; font-size: clamp(31px, 3.3vw, 42px); }
-.cap-carousel { min-width: 0; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
-.cap-track { display: flex; width: max-content; animation: capabilities-loop 36s linear infinite; will-change: transform; }
+/* Continuous 3D feature deck */
+.capabilities { grid-template-columns: minmax(260px, .78fr) minmax(0, 1.45fr); gap: clamp(28px, 5vw, 68px); }
+.capabilities .block-head h2 { max-width: none; white-space: pre-line; font-size: clamp(34px, 3.7vw, 48px); line-height: 1.03; letter-spacing: -.04em; }
+.cap-carousel { position: relative; min-width: 0; height: 300px; overflow: hidden; perspective: 1000px; perspective-origin: 50% 48%; }
+.cap-track { position: relative; width: 100%; height: 100%; margin: 0; padding: 0; list-style: none; transform-style: preserve-3d; animation: capability-deck-spin 42s linear infinite; }
 .cap-carousel:hover .cap-track, .cap-carousel:focus-within .cap-track { animation-play-state: paused; }
-.cap-grid { display: flex; flex: none; gap: 12px; width: max-content; padding: 8px 6px 14px; }
-.cap-grid .cap { flex: 0 0 clamp(190px, 19vw, 235px); min-height: 128px; }
-@keyframes capabilities-loop { to { transform: translateX(-50%); } }
+.cap-track .cap { position: absolute; left: 50%; top: 50%; width: clamp(190px, 19vw, 230px); min-height: 132px; transform: translate(-50%, -50%) rotateY(var(--card-angle)) translateZ(218px); transform-style: preserve-3d; backface-visibility: hidden; transition: border-color .2s, background .2s; }
+.cap-track .cap-icon { width: 40px; height: 40px; }
+.cap-track .cap h3 { margin-top: 15px; }
+@keyframes capability-deck-spin { to { transform: rotateY(360deg); } }
 @media (max-width: 900px) {
-  .capabilities { display: grid; grid-template-columns: 1fr; gap: 20px; }
-  .capabilities .block-head h2 { max-width: 19ch; }
-  .cap-grid .cap { flex-basis: clamp(190px, 34vw, 235px); }
+  .capabilities { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .capabilities .block-head h2 { max-width: none; }
+  .cap-carousel { height: 280px; }
+  .cap-track .cap { width: clamp(190px, 28vw, 225px); transform: translate(-50%, -50%) rotateY(var(--card-angle)) translateZ(205px); }
 }
 @media (max-width: 620px) {
   .capabilities { padding-top: 30px; }
-  .capabilities .block-head h2 { max-width: 15ch; }
-  .cap-grid .cap { flex-basis: 205px; min-height: 116px; }
-  .cap-track { animation-duration: 30s; }
+  .capabilities .block-head h2 { font-size: clamp(34px, 10vw, 44px); }
+  .cap-carousel { height: 250px; perspective: 780px; }
+  .cap-track .cap { width: 190px; min-height: 116px; transform: translate(-50%, -50%) rotateY(var(--card-angle)) translateZ(170px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cap-carousel { overflow-x: auto; mask-image: none; scrollbar-width: thin; }
-  .cap-track { animation: none; }
+  .cap-carousel { height: auto; overflow: visible; perspective: none; }
+  .cap-track { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; height: auto; animation: none; transform: none; transform-style: flat; }
+  .cap-track .cap { position: relative; left: auto; top: auto; width: auto; min-height: 116px; transform: none; backface-visibility: visible; }
 }
 
 /* App home: a more expressive studio entry point */
