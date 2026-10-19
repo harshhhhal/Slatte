@@ -33,10 +33,11 @@ export async function renderApp(ctx) {
 
   const welcome = h('section.app-welcome',
     h('div.app-welcome-copy',
-      h('p.eyebrow', 'YOUR CREATIVE SPACE'),
-      h('h1', 'Make something worth keeping.'),
-      h('p', 'Pick up where you left off, or start with a fresh canvas.'),
-      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design')),
+      h('p.eyebrow', 'YOUR STUDIO'),
+      h('h1', 'Start with a canvas.'),
+      h('p', 'Choose a size, then build with type, shapes, and images.'),
+      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design'),
+      h('p.app-local-note', h('span', { html: icon('folder', 14) }), 'Saved on this device')),
     h('div.app-welcome-art', { 'aria-hidden': 'true' },
       h('span.welcome-paper.paper-back'),
       h('span.welcome-paper.paper-mid'),
@@ -45,7 +46,7 @@ export async function renderApp(ctx) {
   const projectCount = h('span.app-project-count', '0 projects');
   const projectList = h('ul.project-grid', { 'aria-label': 'Your projects' });
   const projectSection = h('section.app-projects#projects', h('div.app-section-head',
-    h('div', h('p.eyebrow', 'YOUR WORK, ALL TOGETHER'), h('h2', 'Recent projects')),
+    h('div', h('p.eyebrow', 'YOUR WORK'), h('h2', 'Recent projects'), h('p.section-note', 'Pick up where you left off.')),
     projectCount),
     projectList);
 
@@ -62,9 +63,9 @@ export async function renderApp(ctx) {
     urls.splice(0).forEach((url) => URL.revokeObjectURL(url));
     if (!projects.length) {
       projectList.replaceChildren(h('li.state.state-empty', h('div.empty-art', { 'aria-hidden': 'true' }, h('i'), h('b'), h('span', '✳')),
-        h('p.state-title', 'Your next idea starts here'),
-        h('p', 'Create a canvas and it will show up here.'),
-        h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, 'Create a design')));
+        h('p.state-title', 'Your studio is ready.'),
+        h('p', 'Choose a canvas size to create your first design.'),
+        h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, 'Choose a canvas')));
       return;
     }
     projectList.replaceChildren(...projects.map((project, index) => {
