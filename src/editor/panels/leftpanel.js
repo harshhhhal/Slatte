@@ -35,9 +35,12 @@ export function createLeftPanel(app) {
   const { editor } = app;
   const root = h('div.leftpanel-inner');
   let tab = 'elements';
+  let open = false;
   const tabBar = h('div.tabbar', { role: 'tablist', 'aria-label': 'Asset categories' });
   const title = h('h2.panel-title');
   const body = h('div.panel-body', { role: 'tabpanel' });
+  const flyout = h('div.asset-flyout', { hidden: true }, h('div.asset-flyout-head', title,
+    h('button.asset-flyout-close', { type: 'button', 'aria-label': 'Close assets', title: 'Close', textContent: '×', onclick: close })), body);
   const cleanups = [];
   const mem = { icons: { q: '' }, photos: { q: '' } };
 
@@ -56,9 +59,13 @@ export function createLeftPanel(app) {
     show(n.id);
     tabBtns[TABS.indexOf(n)].focus();
   });
-  root.append(tabBar, title, body);
+  root.append(tabBar, flyout);
 
   function show(id) {
+    if (open && id === tab) { close(); return; }
+    open = true;
+    root.classList.add('open');
+    flyout.hidden = false;
     cleanups.splice(0).forEach((c) => c());
     tab = id;
     tabBtns.forEach((b) => { const on = b.dataset.tab === id; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
@@ -75,6 +82,18 @@ export function createLeftPanel(app) {
       title.classList.add('title-entered');
     });
   }
+
+  function close() {
+    open = false;
+    root.classList.remove('open');
+    flyout.hidden = true;
+    tabBtns.forEach((b) => b.setAttribute('aria-selected', 'false'));
+  }
+
+  const outside = (e) => { if (open && !root.contains(e.target)) close(); };
+  const escape = (e) => { if (open && e.key === 'Escape') { close(); tabBtns.find((b) => b.dataset.tab === tab)?.focus(); } };
+  document.addEventListener('pointerdown', outside, true);
+  document.addEventListener('keydown', escape, true);
 
   const search = (placeholder, value, onInput) => {
     const input = h('input.search', { type: 'search', placeholder, 'aria-label': placeholder, value: value || '' });
@@ -105,11 +124,19 @@ export function createLeftPanel(app) {
       ['rectangle', 'rect', 'Rectangle'], ['roundedRectangle', 'rounded', 'Rounded'], ['ellipse', 'ellipse', 'Ellipse'], ['triangle', 'triangle', 'Triangle'],
       ['polygon', 'polygon', 'Polygon'], ['star', 'star', 'Star'], ['arrow', 'arrow', 'Arrow'], ['line', 'line', 'Line'],
     ];
-    const grid = h('div.tile-grid', shapes.map(([k, ic, label]) => h('button.tile', { type: 'button', title: `Add ${label.toLowerCase()}`, 'aria-label': `Add ${label.toLowerCase()}`, onclick: () => insertShape(k) }, h('span', { html: icon(ic, 30) }), h('span.tile-label', label))));
+    const grid = h('div.tile-grid', shapes.map(([k, ic, label]) => h('button.tile', {
+      type: 'button', draggable: 'true', title: `Add ${label.toLowerCase()} or drag to canvas`, 'aria-label': `Add ${label.toLowerCase()}`,
+      onclick: () => insertShape(k),
+      ondragstart: (e) => { e.dataTransfer.effectAllowed = 'copy'; e.dataTransfer.setData('application/x-slatte-element', JSON.stringify({ kind: 'shape', shape: k })); },
+    }, h('span', { html: icon(ic, 30) }), h('span.tile-label', label))));
+    const textPreset = (text, label, size, weight) => h('button.text-preset', {
+      type: 'button', draggable: 'true', onclick: () => addTextObject(editor, { text, size: Math.round(editor.page.width / size), weight }),
+      ondragstart: (e) => { e.dataTransfer.effectAllowed = 'copy'; e.dataTransfer.setData('application/x-slatte-element', JSON.stringify({ kind: 'text', text, size: Math.round(editor.page.width / size), weight })); },
+    }, label);
     const texts = h('div.text-presets',
-      h('button.text-preset.t1', { type: 'button', onclick: () => addTextObject(editor, { text: 'Add a heading', size: Math.round(editor.page.width / 12), weight: 700 }) }, 'Add a heading'),
-      h('button.text-preset.t2', { type: 'button', onclick: () => addTextObject(editor, { text: 'Add a subheading', size: Math.round(editor.page.width / 22), weight: 600 }) }, 'Add a subheading'),
-      h('button.text-preset.t3', { type: 'button', onclick: () => addTextObject(editor, { text: 'Add a little bit of body text', size: Math.round(editor.page.width / 38), weight: 400 }) }, 'Add a little bit of body text'));
+      textPreset('Add a heading', 'Add a heading', 12, 700),
+      textPreset('Add a subheading', 'Add a subheading', 22, 600),
+      textPreset('Add a little bit of body text', 'Add a little bit of body text', 38, 400));
     return h('div', h('h3.sub', 'Shapes'), grid, h('h3.sub', 'Text'), texts,
       h('p.hint', 'Tip: pick a tool from the rail and drag on the page for precise placement.'));
   };
@@ -320,6 +347,6 @@ export function createLeftPanel(app) {
   };
 
   const builders = { elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, brushes: brushesTab, fonts: fontsTab, uploads: uploadsTab };
-  show(tab);
-  return { el: root, show, destroy: () => cleanups.splice(0).forEach((c) => c()) };
+  tabBtns.forEach((b) => { b.setAttribute('aria-selected', 'false'); b.tabIndex = 0; });
+  return { el: root, show, destroy: () => { cleanups.splice(0).forEach((c) => c()); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape, true); } };
 }

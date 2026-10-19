@@ -2,9 +2,9 @@ import { renderPageParts } from '../core/renderer.js';
 import { RasterManager } from './raster.js';
 import { Disposer, h, rafThrottle } from '../utils/dom.js';
 import { clamp, localToWorld, rotatePoint, DEG } from '../utils/geometry.js';
-import { isContainer } from '../core/document-model.js';
+import { createObject, isContainer } from '../core/document-model.js';
 import { fonts } from '../services/font-service.js';
-import { invalidateTextCache } from '../core/text-layout.js';
+import { fitText, invalidateTextCache } from '../core/text-layout.js';
 
 export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 32;
@@ -35,6 +35,8 @@ export class Stage {
     this.pointers = new Map();
     this.gesture = null;
     this.pan = null;
+    this.pagePositions = new Map();
+    this.pageSvgs = new Map();
     this.width = 0;
     this.height = 0;
     this.dirty = { render: true, overlay: true };
@@ -45,11 +47,7 @@ export class Stage {
   }
 
   _build() {
-    this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    this.svg.setAttribute('class', 'page-svg');
-    this.svg.setAttribute('role', 'img');
-    this.svg.setAttribute('aria-label', 'Design page');
-    this.world = h('div.stage-world', this.svg);
+    this.world = h('div.stage-world');
     this.overlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.overlay.setAttribute('class', 'stage-overlay');
     this.overlay.setAttribute('aria-hidden', 'true');
@@ -68,6 +66,7 @@ export class Stage {
     const ed = this.editor;
     this.scheduler = rafThrottle(() => this._flush());
     d.add(ed.on('change', () => this.invalidate({ render: true, overlay: true })));
+    d.add(ed.on('page', () => this.invalidate({ render: true, overlay: true })));
     d.add(ed.on('selection', () => this.invalidate({ overlay: true })));
     d.add(ed.on('tool', ({ id, prev }) => this._switchTool(id, prev)));
     d.add(ed.on('viewport', () => this.invalidate({ render: true, overlay: true })));
@@ -83,7 +82,7 @@ export class Stage {
     d.listen(this.el, 'dblclick', (e) => this._dbl(e));
     d.listen(this.el, 'wheel', (e) => this._wheel(e), { passive: false });
     d.listen(this.el, 'contextmenu', (e) => e.preventDefault());
-    d.listen(this.el, 'dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); this.el.classList.add('drop-target'); } });
+    d.listen(this.el, 'dragover', (e) => { if (e.dataTransfer && ([...e.dataTransfer.types].includes('Files') || [...e.dataTransfer.types].includes('application/x-slatte-element'))) { e.preventDefault(); this.el.classList.add('drop-target'); } });
     d.listen(this.el, 'dragleave', () => this.el.classList.remove('drop-target'));
     d.listen(this.el, 'drop', (e) => this._drop(e));
     d.listen(window, 'keydown', (e) => this._keyDown(e));
@@ -140,18 +139,20 @@ export class Stage {
     this.height = r.height;
     this.overlay.setAttribute('width', r.width);
     this.overlay.setAttribute('height', r.height);
-    if (first && r.width > 0) this.fitPage(false);
+    if (first && r.width > 0) this.fitAllPages(false);
     this.invalidate({ overlay: true });
   }
 
   screenToPage(sx, sy) {
     const v = this.editor.viewport;
-    return { x: (sx - v.x) / v.zoom, y: (sy - v.y) / v.zoom };
+    const pos = this.pagePositions.get(this.editor.page.id) || { x: 0, y: 0 };
+    return { x: (sx - v.x) / v.zoom - pos.x, y: (sy - v.y) / v.zoom - pos.y };
   }
 
   pageToScreen(px, py) {
     const v = this.editor.viewport;
-    return { x: px * v.zoom + v.x, y: py * v.zoom + v.y };
+    const pos = this.pagePositions.get(this.editor.page.id) || { x: 0, y: 0 };
+    return { x: (px + pos.x) * v.zoom + v.x, y: (py + pos.y) * v.zoom + v.y };
   }
 
   clientToStage(cx, cy) {
@@ -189,7 +190,32 @@ export class Stage {
 
   fitPage() {
     const p = this.editor.page;
-    this.fitRect({ x: 0, y: 0, width: p.width, height: p.height });
+    const pos = this.pagePositions.get(p.id) || { x: 0, y: 0 };
+    this.fitRect({ x: pos.x, y: pos.y, width: p.width, height: p.height });
+  }
+
+  fitAllPages() {
+    const pages = this.editor.doc.pages;
+    if (!pages.length) return;
+    const positions = this._layoutPages();
+    const minX = Math.min(...pages.map((p) => positions.get(p.id).x));
+    const minY = Math.min(...pages.map((p) => positions.get(p.id).y));
+    const maxX = Math.max(...pages.map((p) => positions.get(p.id).x + p.width));
+    const maxY = Math.max(...pages.map((p) => positions.get(p.id).y + p.height));
+    this.fitRect({ x: minX, y: minY, width: maxX - minX, height: maxY - minY }, 48);
+  }
+
+  _layoutPages() {
+    const pages = this.editor.doc.pages;
+    const maxHeight = Math.max(1, ...pages.map((p) => p.height));
+    const positions = new Map();
+    let x = 0;
+    for (const page of pages) {
+      positions.set(page.id, { x, y: (maxHeight - page.height) / 2 });
+      x += page.width + Math.max(48, Math.min(120, page.width * 0.08));
+    }
+    this.pagePositions = positions;
+    return positions;
   }
 
   fitSelection() {
@@ -221,26 +247,47 @@ export class Stage {
 
   _renderPage() {
     const ed = this.editor;
-    const page = ed.page;
     const v = ed.viewport;
     this.world.style.transform = `translate(${f(v.x)}px, ${f(v.y)}px) scale(${v.zoom})`;
-    this.svg.setAttribute('width', page.width);
-    this.svg.setAttribute('height', page.height);
-    this.svg.setAttribute('viewBox', `0 0 ${page.width} ${page.height}`);
-    const parts = renderPageParts(ed.doc, page, {
-      live: true,
-      resolve: (id) => ed.assets.url(id),
-      hideIds: this.hideIds,
-      hitPad: Math.min(40, 12 / v.zoom),
-    });
-    const bg = page.background.transparent ? '' : `<rect class="page-bg" width="${page.width}" height="${page.height}" fill="${page.background.color}"/>`;
-    this.svg.classList.toggle('is-transparent', !!page.background.transparent);
-    this.svg.innerHTML = `<defs>${parts.defs}</defs>${bg}${parts.body}`;
-    for (const id of parts.rasters) {
-      const o = ed.get(id);
-      const host = this.svg.querySelector(`foreignObject[data-raster="${CSS.escape(id)}"]`);
-      if (o && host) host.append(this.raster.entry(o).canvas);
+    const pages = ed.doc.pages;
+    const positions = this._layoutPages();
+    const current = new Set(pages.map((p) => p.id));
+    for (const [id, svg] of this.pageSvgs) if (!current.has(id)) { svg.remove(); this.pageSvgs.delete(id); }
+    for (const page of pages) {
+      let svg = this.pageSvgs.get(page.id);
+      if (!svg) {
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'page-svg');
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', page.name);
+        svg.dataset.pageId = page.id;
+        this.pageSvgs.set(page.id, svg);
+        this.world.append(svg);
+      }
+      const pos = positions.get(page.id);
+      svg.style.left = `${pos.x}px`;
+      svg.style.top = `${pos.y}px`;
+      svg.setAttribute('width', page.width);
+      svg.setAttribute('height', page.height);
+      svg.setAttribute('viewBox', `0 0 ${page.width} ${page.height}`);
+      svg.setAttribute('aria-label', page.name);
+      const parts = renderPageParts(ed.doc, page, {
+        live: true,
+        resolve: (id) => ed.assets.url(id),
+        hideIds: this.hideIds,
+        hitPad: Math.min(40, 12 / v.zoom),
+      });
+      const bg = page.background.transparent ? '' : `<rect class="page-bg" width="${page.width}" height="${page.height}" fill="${page.background.color}"/>`;
+      svg.classList.toggle('is-transparent', !!page.background.transparent);
+      svg.classList.toggle('active-page', page.id === ed.page.id);
+      svg.innerHTML = `<defs>${parts.defs}</defs>${bg}${parts.body}`;
+      for (const id of parts.rasters) {
+        const o = ed.get(id);
+        const host = svg.querySelector(`foreignObject[data-raster="${CSS.escape(id)}"]`);
+        if (o && host) host.append(this.raster.entry(o).canvas);
+      }
     }
+    this.svg = this.pageSvgs.get(ed.page.id) || null;
     // forget canvases of layers that no longer exist
     for (const id of [...this.raster.layers.keys()]) if (!ed.get(id)) this.raster.forget(id);
     this._renderRulers();
@@ -368,6 +415,7 @@ export class Stage {
     const fg = cs.getPropertyValue('--text-muted').trim() || '#888';
     const line = cs.getPropertyValue('--border').trim() || '#ccc';
     const v = this.editor.viewport;
+    const activePos = this.pagePositions.get(this.editor.page.id) || { x: 0, y: 0 };
     const nice = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000];
     const step = nice.find((s) => s * v.zoom >= 56) || 5000;
     const sub = step / (step >= 100 ? 10 : step >= 20 ? 5 : step >= 5 ? 5 : 2);
@@ -384,10 +432,11 @@ export class Stage {
       g.strokeStyle = line;
       g.fillStyle = fg;
       g.font = '10px system-ui, sans-serif';
-      const origin = horizontal ? v.x : v.y;
+      const offset = horizontal ? activePos.x : activePos.y;
+      const origin = (horizontal ? v.x : v.y) + offset * v.zoom;
       const startVal = Math.floor((-origin / v.zoom) / sub) * sub;
       for (let val = startVal; val * v.zoom + origin < len; val += sub) {
-        const pos = Math.round(val * v.zoom + origin) + 0.5;
+        const pos = Math.round((val + offset) * v.zoom + (horizontal ? v.x : v.y)) + 0.5;
         const major = Math.abs(val % step) < 1e-6;
         g.beginPath();
         if (horizontal) { g.moveTo(pos, size); g.lineTo(pos, major ? 6 : 14); } else { g.moveTo(size, pos); g.lineTo(major ? 6 : 14, pos); }
@@ -427,6 +476,11 @@ export class Stage {
 
   _down(e) {
     if (e.target.closest && e.target.closest('.stage-ui')) return;
+    const artboard = e.target.closest && e.target.closest('.page-svg');
+    if (artboard && artboard.dataset.pageId && artboard.dataset.pageId !== this.editor.page.id) {
+      this.editor.setActivePage(artboard.dataset.pageId);
+      this.svg = artboard;
+    }
     this.el.focus({ preventScroll: true });
     this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
     if (e.pointerType === 'touch' && this.pointers.size === 2) {
@@ -533,9 +587,40 @@ export class Stage {
 
   _drop(e) {
     this.el.classList.remove('drop-target');
-    if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+    if (!e.dataTransfer) return;
     e.preventDefault();
+    const artboard = e.target.closest && e.target.closest('.page-svg');
+    if (artboard?.dataset.pageId && artboard.dataset.pageId !== this.editor.page.id) {
+      this.editor.setActivePage(artboard.dataset.pageId);
+      this.svg = artboard;
+    }
     const s = this.clientToStage(e.clientX, e.clientY);
+    if ([...e.dataTransfer.types].includes('application/x-slatte-element')) {
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('application/x-slatte-element'));
+        const page = this.editor.page;
+        if (data.kind === 'shape') {
+          const side = Math.min(page.width, page.height) * 0.25;
+          const map = {
+            rectangle: ['rectangle', {}], roundedRectangle: ['roundedRectangle', {}], ellipse: ['ellipse', {}],
+            triangle: ['polygon', { sides: 3, name: 'Triangle' }], polygon: ['polygon', { sides: 6 }],
+            star: ['star', {}], arrow: ['arrow', { height: side * 0.6 }], line: ['line', { height: 0, width: side * 1.5 }],
+          };
+          const [type, props] = map[data.shape] || map.rectangle;
+          const obj = createObject(type, { width: side, height: side, ...props });
+          obj.x = s.x - obj.width / 2; obj.y = s.y - obj.height / 2;
+          this.editor.addObjects([obj], { label: `Add ${data.shape || 'shape'}` });
+        } else if (data.kind === 'text') {
+          const obj = createObject('text', { text: data.text || 'Text', fontSize: data.size || 48, fontWeight: data.weight || 400, fontFamily: 'Inter', name: 'Text' });
+          fitText(obj);
+          obj.x = s.x - obj.width / 2; obj.y = s.y - obj.height / 2;
+          this.editor.addObjects([obj], { label: 'Add text' });
+          fonts.load('Inter').then(() => this.editor.change('Update text', (p) => { const found = p.objects.find((o) => o.id === obj.id); if (found) fitText(found); }));
+        }
+      } catch { /* ignore invalid internal drag payloads */ }
+      return;
+    }
+    if (!e.dataTransfer.files || !e.dataTransfer.files.length) return;
     if (this.onDropFiles) this.onDropFiles([...e.dataTransfer.files], this.screenToPage(s.x, s.y));
   }
 

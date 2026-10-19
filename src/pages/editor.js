@@ -166,7 +166,7 @@ export async function renderEditor(ctx) {
       toast(describeError(err, 'That image couldn’t be used.'), { kind: 'error' });
     }
   }));
-  d.add(editor.on('page', () => { stage.fitPage(); }));
+  d.add(editor.on('page', () => { stage.fitAllPages(); }));
   if (warnings.length) toast(`Opened with ${warnings.length} notice${warnings.length === 1 ? '' : 's'}: ${warnings[0]}`, { kind: 'warning', duration: 9000 });
 
   /* ------------------------------ top bar ------------------------------ */
@@ -211,7 +211,6 @@ export async function renderEditor(ctx) {
   themeBtn.addEventListener('click', () => { toggleTheme(); paintTheme(); });
   paintTheme();
 
-  const leftToggle = h('button.icon-btn.panel-toggle', { type: 'button', 'aria-label': 'Toggle assets panel', 'aria-pressed': 'true', html: icon('panelLeft', 18) });
   const rightToggle = h('button.icon-btn.panel-toggle', { type: 'button', 'aria-label': 'Toggle properties panel', 'aria-pressed': 'true', html: icon('panelRight', 18) });
 
   const moreBtn = h('button.icon-btn', { type: 'button', 'aria-label': 'More actions', 'aria-haspopup': 'menu', html: icon('more', 18) });
@@ -239,7 +238,6 @@ export async function renderEditor(ctx) {
 
   const topbar = h('header.topbar',
     h('a.brand.brand-mini', { href: '/', 'data-link': '', 'aria-label': 'All projects', title: 'All projects', html: logoMark(24) }),
-    leftToggle,
     h('div.topbar-name', nameInput, saveBtn),
     h('div.topbar-spacer'),
     h('div.topbar-actions', undoBtn, redoBtn, themeBtn, exportBtn, moreBtn, rightToggle));
@@ -280,7 +278,7 @@ export async function renderEditor(ctx) {
   }
   for (const [tid, , el] of tabs) { el.setAttribute('role', 'tabpanel'); el.setAttribute('aria-labelledby', `rtab-${tid}`); }
 
-  const leftPanel = h('aside.leftpanel.panel', { 'aria-label': 'Assets and pages' }, left.el);
+  const leftPanel = h('aside.leftpanel', { 'aria-label': 'Asset tools' }, left.el);
   const rightPanel = h('aside.rightpanel.panel', { 'aria-label': 'Properties' }, tabBar, h('div.right-body', inspector.el, layers.el));
   showRight('design');
 
@@ -328,10 +326,10 @@ export async function renderEditor(ctx) {
   /* ------------------------------ layout: collapse + resize ------------------------------ */
   const narrow = matchMedia(NARROW);
   const layout = loadLayout();
-  const state = { leftOpen: narrow.matches ? false : layout.leftOpen !== false, rightOpen: narrow.matches ? false : layout.rightOpen !== false };
+  const state = { rightOpen: narrow.matches ? false : layout.rightOpen !== false };
 
   const resizer = (side) => {
-    const el = h('div.resizer', {
+    const el = h(`div.resizer.${side}-resizer`, {
       role: 'separator', 'aria-orientation': 'vertical', tabindex: 0,
       'aria-label': side === 'left' ? 'Resize assets panel' : 'Resize properties panel',
     });
@@ -366,6 +364,14 @@ export async function renderEditor(ctx) {
   const pageTrigger = h('button.tool-btn.page-tool', { type: 'button', 'aria-label': 'Pages', title: 'Pages', 'aria-expanded': 'false', html: icon('pages', 20) });
   rail.el.append(h('div.rail-sep', { role: 'separator' }), pageTrigger);
   let pagePopupOpen = false;
+  const dismissPagePopup = (e) => {
+    if (!pagePopupOpen || pagePopup.contains(e.target) || pageTrigger.contains(e.target)) return;
+    pagePopupOpen = false;
+    pagePopup.hidden = true;
+    pageTrigger.setAttribute('aria-expanded', 'false');
+    pageTrigger.classList.remove('active');
+  };
+  d.listen(document, 'pointerdown', dismissPagePopup, true);
   pageTrigger.addEventListener('click', () => {
     pagePopupOpen = !pagePopupOpen;
     pagePopup.hidden = !pagePopupOpen;
@@ -416,40 +422,36 @@ export async function renderEditor(ctx) {
   d.add(editor.on('page', paintPages));
   d.add(editor.on('change', (e) => { if (e?.committed) paintPages(); }));
   d.listen(window, 'resize', positionPagePopup);
-  const scrim = h('div.scrim', { onclick: () => { state.leftOpen = false; state.rightOpen = false; applyLayout(); } });
+  const scrim = h('div.scrim', { onclick: () => { state.rightOpen = false; applyLayout(); } });
   const root = h('div.editor-app',
     h('a.skip', { href: '#main' }, 'Skip to canvas'),
     topbar,
-    h('div.workspace', leftPanel, resizer('left'), stageWrap, rail.el, pagePopup, resizer('right'), rightPanel, scrim),
+    h('div.workspace', leftPanel, stageWrap, rail.el, rail.subdock, pagePopup, resizer('right'), rightPanel, scrim),
     statusbar);
   root.style.setProperty('--left-w', `${layout.left}px`);
   root.style.setProperty('--right-w', `${layout.right}px`);
 
   function applyLayout() {
-    root.classList.toggle('show-left', state.leftOpen);
     root.classList.toggle('show-right', state.rightOpen);
     root.classList.toggle('narrow', narrow.matches);
-    leftToggle.setAttribute('aria-pressed', String(state.leftOpen));
     rightToggle.setAttribute('aria-pressed', String(state.rightOpen));
-    leftPanel.inert = !state.leftOpen;
     rightPanel.inert = !state.rightOpen;
-    saveLayout({ ...layout, ...(narrow.matches ? { leftOpen: layout.leftOpen, rightOpen: layout.rightOpen } : state) });
+    saveLayout({ ...layout, rightOpen: state.rightOpen });
     requestAnimationFrame(() => stage._resize());
   }
-  leftToggle.addEventListener('click', () => { state.leftOpen = !state.leftOpen; if (narrow.matches && state.leftOpen) state.rightOpen = false; applyLayout(); });
-  rightToggle.addEventListener('click', () => { state.rightOpen = !state.rightOpen; if (narrow.matches && state.rightOpen) state.leftOpen = false; applyLayout(); });
-  const onNarrow = () => { state.leftOpen = !narrow.matches; state.rightOpen = !narrow.matches; applyLayout(); };
+  rightToggle.addEventListener('click', () => { state.rightOpen = !state.rightOpen; applyLayout(); });
+  const onNarrow = () => { state.rightOpen = !narrow.matches; applyLayout(); };
   narrow.addEventListener('change', onNarrow);
   d.add(() => narrow.removeEventListener('change', onNarrow));
 
   // On small screens, selecting a tool or object closes drawers so the canvas is usable.
-  d.add(editor.on('tool', () => { if (narrow.matches && (state.leftOpen || state.rightOpen)) { state.leftOpen = false; state.rightOpen = false; applyLayout(); } }));
+  d.add(editor.on('tool', () => { if (narrow.matches && state.rightOpen) { state.rightOpen = false; applyLayout(); } }));
 
   ctx.outlet.append(root);
   applyLayout();
   stage.start();
   paintStatus();
-  for (const el of [leftPanel, rightPanel]) el.hidden = false;
+  rightPanel.hidden = false;
 
   /* ------------------------------ lifecycle ------------------------------ */
   d.listen(window, 'beforeunload', (e) => {

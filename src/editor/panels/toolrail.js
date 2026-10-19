@@ -1,6 +1,5 @@
 import { h } from '../../utils/dom.js';
 import { icon } from '../../core/icons.js';
-import { showMenu } from '../../ui/ui.js';
 import { formatKeys } from '../../core/shortcuts.js';
 
 const TOOLS = [
@@ -29,24 +28,51 @@ const TOOLS = [
   },
   { id: 'text', icon: 'text', label: 'Text', key: 'T' },
   { id: 'gradient', icon: 'gradient', label: 'Gradient', key: 'G' },
-  { id: 'eyedropper', icon: 'eyedropper', label: 'Eyedropper', key: 'I' },
   { id: 'hand', icon: 'hand', label: 'Hand', key: 'H' },
 ];
 
-/** Compact vertical tool rail. Grouped tools open a flyout on re-click, long-press or the corner mark. */
+/** Compact tool dock with a horizontal sub-dock for grouped tools. */
 export function createToolRail(editor) {
   const nav = h('nav.toolrail', { 'aria-label': 'Tools' });
+  const subdock = h('div.tool-subdock', { 'aria-label': 'Tool options', hidden: true });
   const buttons = new Map();
   const lastInGroup = { shapes: 'rectangle', paint: 'brush' };
+  let openGroup = null;
 
   const activate = (id) => editor.setTool(id);
 
   const label = (t) => `${t.label}${t.key ? ` (${formatKeys(t.key)})` : ''}`;
 
+  const closeSubdock = () => {
+    openGroup = null;
+    subdock.hidden = true;
+    subdock.replaceChildren();
+    for (const { btn, group } of buttons.values()) if (group) {
+      btn.classList.remove('expanded');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  const showSubdock = (group) => {
+    if (openGroup === group.group) { closeSubdock(); return; }
+    openGroup = group.group;
+    subdock.replaceChildren(...group.items.map((item) => h('button.subtool-btn', {
+      type: 'button', title: label(item), 'aria-label': label(item), 'aria-pressed': String(editor.toolId === item.id),
+      class: editor.toolId === item.id ? 'active' : '',
+      onclick: () => { lastInGroup[group.group] = item.id; activate(item.id); closeSubdock(); },
+    }, h('span.subtool-icon', { html: icon(item.icon, 18) }), h('span.subtool-label', item.label))));
+    subdock.hidden = false;
+    for (const { btn, group: meta } of buttons.values()) if (meta) {
+      const expanded = meta.group === group.group;
+      btn.classList.toggle('expanded', expanded);
+      btn.setAttribute('aria-expanded', String(expanded));
+    }
+  };
+
   for (const t of TOOLS) {
     if (t.group) {
       const first = t.items.find((i) => i.id === lastInGroup[t.group]);
-      const btn = h('button.tool-btn.has-flyout', { type: 'button', 'aria-haspopup': 'menu', 'aria-label': t.label, title: t.label });
+      const btn = h('button.tool-btn.has-flyout', { type: 'button', 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-label': t.label, title: t.label });
       const corner = h('span.flyout-mark', { html: icon('chevronRight', 8) });
       btn.append(h('span.tool-icon'), corner);
       const refresh = () => {
@@ -55,22 +81,8 @@ export function createToolRail(editor) {
         btn.title = label(cur);
         btn.setAttribute('aria-label', `${cur.label}. More ${t.label.toLowerCase()} tools`);
       };
-      const openFlyout = () => showMenu(btn, t.items.map((i) => ({
-        label: i.label, icon: i.icon, shortcut: i.key ? formatKeys(i.key) : '',
-        checked: editor.toolId === i.id ? true : undefined,
-        onClick: () => { lastInGroup[t.group] = i.id; refresh(); activate(i.id); },
-      })), { side: 'right' });
-      let timer = null, long = false;
-      btn.addEventListener('pointerdown', () => { long = false; timer = setTimeout(() => { long = true; openFlyout(); }, 420); });
-      btn.addEventListener('pointerup', () => clearTimeout(timer));
-      btn.addEventListener('pointerleave', () => clearTimeout(timer));
-      btn.addEventListener('click', (e) => {
-        if (long) { long = false; return; }
-        const inGroup = t.items.some((i) => i.id === editor.toolId);
-        if (e.target.closest('.flyout-mark') || inGroup) openFlyout(); else activate(lastInGroup[t.group]);
-      });
-      btn.addEventListener('contextmenu', (e) => { e.preventDefault(); openFlyout(); });
-      btn.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); openFlyout(); } });
+      btn.addEventListener('click', () => showSubdock(t));
+      btn.addEventListener('keydown', (e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); showSubdock(t); } });
       refresh();
       buttons.set(t.group, { btn, group: t });
       nav.append(btn);
@@ -95,6 +107,10 @@ export function createToolRail(editor) {
     }
   };
   const off = editor.on('tool', sync);
+  const onPointerDown = (e) => { if (!nav.contains(e.target) && !subdock.contains(e.target)) closeSubdock(); };
+  const onKeyDown = (e) => { if (e.key === 'Escape' && openGroup) { e.stopPropagation(); closeSubdock(); } };
+  document.addEventListener('pointerdown', onPointerDown, true);
+  document.addEventListener('keydown', onKeyDown, true);
   sync();
-  return { el: nav, destroy: off };
+  return { el: nav, subdock, destroy: () => { off(); closeSubdock(); document.removeEventListener('pointerdown', onPointerDown, true); document.removeEventListener('keydown', onKeyDown, true); } };
 }
