@@ -529,7 +529,7 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 
 /* Continuous 3D coverflow feature stack */
 .capabilities { grid-template-columns: minmax(0, 1.25fr) minmax(290px, .75fr); gap: clamp(24px, 4vw, 56px); padding-bottom: 96px; }
-.capabilities .block-head { grid-column: 2; grid-row: 1; justify-self: start; text-align: left; }
+.capabilities .block-head { grid-column: 2; grid-row: 1; justify-self: start; width: 100%; max-width: none; text-align: left; }
 .capabilities .block-head h2 { max-width: none; white-space: pre-line; font-size: clamp(36px, 3.5vw, 44px); line-height: 1.04; letter-spacing: -.04em; }
 .cap-carousel { position: relative; grid-column: 1; grid-row: 1; min-width: 0; height: 330px; overflow: hidden; perspective: 1100px; perspective-origin: 50% 48%; cursor: grab; touch-action: pan-y; user-select: none; }
 .cap-carousel:active { cursor: grabbing; }
