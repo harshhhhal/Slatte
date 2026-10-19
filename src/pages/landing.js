@@ -8,25 +8,42 @@ const CAPABILITIES = [
 ];
 
 function heroPreview() {
-  // A live preview assembled from the app's own HTML and CSS (not an image).
-  const tools = ['select', 'rect', 'ellipse', 'pen', 'brush', 'text', 'image'].map((n, i) =>
+  // A compact illustration of the current multi-page editor workspace.
+  const assets = ['shapes', 'smile', 'image', 'texture', 'brush', 'text', 'folder'].map((n, i) =>
     h('span.pv-tool', { class: i === 0 ? 'on' : '', html: icon(n, 16) }));
+  const pageTools = ['select', 'rect', 'pen', 'brush', 'text', 'hand', 'pages'].map((n, i) =>
+    h('span.pv-dock-tool', { class: i === 0 ? 'on' : '', html: icon(n, 15) }));
   return h('div.hero-preview', { 'aria-hidden': 'true' },
-    h('div.pv-top', h('span.pv-dots', h('i'), h('i'), h('i')), h('span.pv-name', 'Poster draft'), h('span.pv-saved', 'Saved')),
+    h('div.pv-top',
+      h('span.pv-brand-mark', { html: logoMark(18) }),
+      h('span.pv-name', 'Poster draft'),
+      h('span.pv-saved', h('i'), 'Saved'),
+      h('span.pv-top-sep'),
+      h('span.pv-top-icon', { html: icon('undo', 15) }), h('span.pv-top-icon', { html: icon('redo', 15) }),
+      h('span.pv-export', { html: `${icon('download', 14)}<span>Export</span>` })),
     h('div.pv-body',
-      h('div.pv-rail', tools),
+      h('div.pv-rail', assets),
       h('div.pv-stage',
-        h('div.pv-page',
-          h('div.pv-blob.b1'), h('div.pv-blob.b2'), h('div.pv-circle'),
-          h('div.pv-title', 'Make\nsomething\nquiet.'),
-          h('div.pv-sub', 'A clean space to make things'),
-          h('div.pv-sel', ...['nw', 'ne', 'sw', 'se'].map((c) => h('i', { class: c }))))),
+        h('div.pv-pages',
+          h('div.pv-page.pv-page-main',
+            h('span.pv-page-tag', '01 / POSTER'), h('div.pv-blob.b1'), h('div.pv-blob.b2'), h('div.pv-circle'),
+            h('div.pv-title', 'Make\nsomething\nquiet.'),
+            h('div.pv-sub', 'A clean space to make things'),
+            h('div.pv-sel', ...['nw', 'ne', 'sw', 'se'].map((c) => h('i', { class: c }))),
+            h('div.pv-page-actions', h('i', { html: icon('chevronUp', 10) }), h('i', { html: icon('copy', 10) }), h('i', { html: icon('more', 10) }))),
+          h('div.pv-page.pv-page-second',
+            h('span.pv-page-tag', '02 / SOCIAL'), h('div.pv-second-orb'), h('div.pv-second-title', 'Stay\ncurious'), h('div.pv-second-wave'))),
+        h('div.pv-toolrail', pageTools),
+        h('div.pv-status', h('span', '1280 × 720'), h('span', '−'), h('span', '69%'), h('span', '+'))),
       h('div.pv-insp',
+        h('div.pv-tabs', h('b', 'Design'), h('span', 'Layers')),
+        h('div.pv-object', h('span', { html: icon('text', 13) }), h('b', 'Text')),
+        h('div.pv-label', 'Position'),
+        h('div.pv-fields', h('i', 'X  309'), h('i', 'Y  203')),
         h('div.pv-label', 'Fill'),
         h('div.pv-swatches', ...['#02c470', '#1f2937', '#f4d35e', '#7aa6ff', '#a7e8bd'].map((c) => h('i', { style: { background: c } }))),
-        h('div.pv-label', 'Blend'), h('div.pv-field', 'Multiply'),
-        h('div.pv-label', 'Opacity'), h('div.pv-slider', h('i')),
-        h('div.pv-label', 'Shadow'), h('div.pv-field', 'Soft · 12 px'))));
+        h('div.pv-label', 'Opacity'), h('div.pv-field', h('i')),
+        h('div.pv-label', 'Size'), h('div.pv-fields', h('i', 'W  162'), h('i', 'H  58')))));
 }
 
 export async function renderLanding(ctx) {

@@ -731,3 +731,70 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 
 /* Keep the landing links visible on compact headers. */
 .landing:not(.app-home) .nav-links { display: flex; gap: clamp(10px, 2vw, 20px); }
+
+/* Preview mirrors the current editor: open artboards, bottom tool dock, side panes. */
+.hero-preview { border-radius: 19px; transform: none; }
+.pv-top { min-height: 44px; gap: 10px; padding: 7px 13px; background: var(--panel); }
+.pv-brand-mark { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); }
+.pv-name { font-size: 11px; font-weight: 650; }
+.pv-saved { display: inline-flex; align-items: center; gap: 5px; margin-left: 3px; color: var(--text-muted); font-size: 9px; }
+.pv-saved i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.pv-top-sep { flex: 1; }
+.pv-top-icon { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 7px; color: var(--text-muted); }
+.pv-export { display: inline-flex; align-items: center; gap: 5px; min-height: 27px; padding: 0 9px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 9px; font-weight: 650; }
+.pv-body { grid-template-columns: 55px minmax(0, 1fr) 158px; height: clamp(330px, 36vw, 440px); }
+.pv-rail { align-content: center; justify-items: center; gap: 4px; padding: 10px 6px; border-right: 0; background: var(--panel); }
+.pv-tool { width: 34px; height: 32px; border-radius: 8px; color: var(--text-muted); }
+.pv-tool.on { background: var(--accent); color: var(--accent-ink); }
+.pv-stage { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; padding: 18px 12px 55px; background: var(--canvas); }
+.pv-pages { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; height: 100%; }
+.pv-page { flex: none; height: auto; aspect-ratio: 1 / 1; border: 1px solid color-mix(in srgb, var(--text) 12%, transparent); }
+.pv-page-main { width: min(51%, 205px); }
+.pv-page-second { width: min(41%, 164px); transform: rotate(2deg); background: #dce8ff; }
+.pv-page-tag { position: absolute; top: 8%; left: 8%; z-index: 2; font: 600 6px var(--mono); letter-spacing: .1em; }
+.pv-title { top: 24%; left: 8%; z-index: 2; font-size: clamp(19px, 2.35vw, 31px); line-height: .92; }
+.pv-sub { left: 8%; bottom: 8%; z-index: 2; font-size: 6px; letter-spacing: .06em; }
+.pv-blob.b1 { width: 72%; right: -19%; top: -15%; }
+.pv-blob.b2 { width: 48%; left: -15%; bottom: -11%; }
+.pv-circle { width: 23%; right: 14%; bottom: 20%; }
+.pv-sel { left: 5%; top: 20%; width: 58%; height: 43%; }
+.pv-sel i { width: 6px; height: 6px; }
+.pv-page-actions { position: absolute; z-index: 3; top: 7px; right: 7px; display: flex; gap: 2px; color: #686761; }
+.pv-page-actions i { display: grid; place-items: center; width: 15px; height: 16px; font-style: normal; }
+.pv-second-orb { position: absolute; width: 43%; aspect-ratio: 1; top: 24%; right: 8%; border: 1px solid #20221f; border-radius: 50%; background: #f4d35e; }
+.pv-second-title { position: absolute; top: 38%; left: 9%; white-space: pre-line; color: #20221f; font: 600 clamp(13px, 1.55vw, 19px)/.95 var(--font-display); }
+.pv-second-wave { position: absolute; width: 110%; height: 14%; left: -4%; bottom: 10%; border-radius: 50%; background: #7aa6ff; transform: rotate(-8deg); }
+.pv-toolrail { position: absolute; z-index: 4; left: 50%; bottom: 19px; display: flex; align-items: center; gap: 3px; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 11px; background: color-mix(in srgb, var(--panel) 95%, transparent); box-shadow: var(--shadow-md); transform: translateX(-50%); }
+.pv-dock-tool { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 7px; color: var(--text); }
+.pv-dock-tool.on { background: var(--accent); color: var(--accent-ink); }
+.pv-status { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: flex-end; gap: 11px; height: 17px; padding: 0 9px; border-top: 1px solid var(--border); background: var(--panel); color: var(--text-muted); font-size: 8px; }
+.pv-insp { align-content: start; gap: 9px; padding: 0 10px 10px; border-left: 1px solid var(--border); background: var(--panel); }
+.pv-tabs { display: flex; justify-content: space-between; margin: 0 -10px 2px; padding: 11px 10px 8px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 9px; }
+.pv-tabs b { position: relative; color: var(--accent); font-weight: 650; }
+.pv-tabs b::after { position: absolute; right: -7px; bottom: -9px; left: -7px; height: 2px; background: var(--accent); content: ''; }
+.pv-object { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 9px; }
+.pv-object span { color: var(--text-muted); }
+.pv-object b { font-weight: 650; }
+.pv-label { margin-top: 2px; font-size: 8px; }
+.pv-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.pv-fields i { overflow: hidden; padding: 5px 4px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); font-size: 8px; font-style: normal; white-space: nowrap; }
+.pv-swatches { gap: 4px; }
+.pv-swatches i { width: 15px; height: 15px; border: 1px solid var(--border); }
+.pv-field { height: 19px; padding: 0; border: 0; background: var(--border); }
+.pv-field i { width: 68%; height: 100%; border-radius: inherit; background: var(--accent); }
+@media (max-width: 560px) {
+  .pv-body { grid-template-columns: 38px minmax(0, 1fr) 96px; height: clamp(250px, 72vw, 360px); }
+  .pv-rail { padding-inline: 3px; }
+  .pv-tool { width: 28px; height: 27px; }
+  .pv-pages { gap: 6px; }
+  .pv-page-main { width: 53%; }
+  .pv-page-second { width: 38%; }
+  .pv-insp { padding-inline: 7px; }
+  .pv-tabs { margin-inline: -7px; padding-inline: 7px; }
+  .pv-second-title { font-size: 11px; }
+  .pv-dock-tool { width: 23px; height: 24px; }
+}
+
+/* Accent cursor in the app workspace and project library. */
+.app-home, .editor-app { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v17l4.8-4.4 3.3 7 3.2-1.5-3.4-7.1 6.7-.2z' fill='%2302c470' stroke='%231d1c1a' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto; }
+.app-home :is(a, button):not(:disabled), .editor-app :is(a, button, [role='button']):not(:disabled) { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v17l4.8-4.4 3.3 7 3.2-1.5-3.4-7.1 6.7-.2z' fill='%2302c470' stroke='%231d1c1a' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, pointer; }
