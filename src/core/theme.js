@@ -27,6 +27,6 @@ export function initTheme() {
   } catch {
     /* ignore */
   }
-  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (t !== 'light' && t !== 'dark') t = 'light';
   document.documentElement.dataset.theme = t;
 }
