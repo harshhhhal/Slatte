@@ -58,7 +58,16 @@ export async function renderLanding(ctx) {
           h('div.hero-float.float-bottom', h('span.float-swatch'), h('span', 'Made your way')))),
       h('section.capabilities#capabilities', { 'aria-labelledby': 'cap-h' },
         h('div.block-head', h('h2#cap-h', 'Everything you need, nothing in the way.')),
-        h('ul.cap-grid', CAPABILITIES.map(([ic, t]) => h('li.cap', h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t)))))
+        h('ul.cap-grid', CAPABILITIES.map(([ic, t]) => h('li.cap', h('span.cap-icon', { html: icon(ic, 22) }), h('h3', t))))),
+      h('section.make-strip', { 'aria-labelledby': 'make-h' },
+        h('div.make-copy',
+          h('p.eyebrow', 'From first mark to final file'),
+          h('h2#make-h', 'Make it yours.'),
+          h('p', 'Shape a thought, find your rhythm, and take your work with you.')),
+        h('div.make-gallery', { 'aria-label': 'Examples of designs you can create' },
+          h('article.make-card.make-poster', h('span.make-card-kicker', '01 / POSTER'), h('span.make-poster-title', 'A little\nmore color'), h('i.make-poster-orb'), h('i.make-poster-line')),
+          h('article.make-card.make-social', h('span.make-card-kicker', '02 / SOCIAL'), h('i.make-social-sun'), h('span.make-social-title', 'Stay curious'), h('i.make-social-wave')),
+          h('article.make-card.make-type', h('span.make-card-kicker', '03 / TYPE'), h('span.make-type-mark', 'Aa'), h('span.make-type-note', 'Words in\ngood form'))))
       ),
     h('footer.footer',
       h('span', `© ${new Date().getFullYear()} Slatte`),
