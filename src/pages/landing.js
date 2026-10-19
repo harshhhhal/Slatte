@@ -121,7 +121,7 @@ export async function renderLanding(ctx) {
         featureDeck),
       h('section.make-strip', { 'aria-labelledby': 'make-h' },
         h('div.make-copy',
-          h('h2#make-h', 'Made to make.')),
+          h('h2#make-h', 'Make posters, social graphics, and more.')),
         h('div.make-gallery', { 'aria-label': 'Examples of designs you can create' },
           h('article.make-card.make-poster', h('span.make-card-kicker', '01 / POSTER'), h('span.make-poster-title', 'A little\nmore color'), h('i.make-poster-orb'), h('i.make-poster-line')),
           h('article.make-card.make-social', h('span.make-card-kicker', '02 / SOCIAL'), h('i.make-social-sun'), h('span.make-social-title', 'Stay curious'), h('i.make-social-wave')),
