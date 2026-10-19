@@ -18,7 +18,7 @@ export function row(label, ...controls) {
 
 export function numberInput({ label, value = 0, min = -1e6, max = 1e6, step = 1, unit = '', dp = 2, onInput, onCommit, width }) {
   const input = h('input.num', {
-    type: 'text', inputMode: 'decimal', autocomplete: 'off', spellcheck: false, 'aria-label': label, value: fmt(value, dp),
+    type: 'text', inputMode: 'decimal', autocomplete: 'off', spellcheck: false, 'aria-label': label, title: `${label} · Scroll to adjust`, value: fmt(value, dp),
   });
   if (width) input.style.width = width;
   const wrap = h('label.num-wrap', { class: unit ? 'has-unit' : '' }, input, unit ? h('span.num-unit', unit) : null);
@@ -49,6 +49,16 @@ export function numberInput({ label, value = 0, min = -1e6, max = 1e6, step = 1,
     e.stopPropagation();
   });
   input.addEventListener('focus', () => setTimeout(() => input.select(), 0));
+  input.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const current = parseFloat(input.value.replace(',', '.'));
+    const base = Number.isFinite(current) ? current : last;
+    const direction = e.deltaY < 0 ? 1 : -1;
+    const multiplier = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+    const next = clamp(Math.round((base + direction * step * multiplier) * 10 ** dp) / 10 ** dp, min, max);
+    input.value = fmt(next, dp);
+    apply(next, true);
+  }, { passive: false });
   return {
     el: wrap,
     input,

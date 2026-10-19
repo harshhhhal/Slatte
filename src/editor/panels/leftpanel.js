@@ -65,10 +65,16 @@ export function createLeftPanel(app) {
     tabBtns.forEach((b) => { const on = b.dataset.tab === id; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
     const meta = TABS.find((t) => t.id === id);
     title.textContent = meta.label;
+    title.classList.remove('title-entered');
     body.replaceChildren();
+    body.classList.remove('tab-entered');
     body.scrollTop = 0;
     const r = builders[id]();
     if (r) body.append(r);
+    requestAnimationFrame(() => {
+      body.classList.add('tab-entered');
+      title.classList.add('title-entered');
+    });
   }
 
   const search = (placeholder, value, onInput) => {

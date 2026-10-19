@@ -264,7 +264,8 @@ export async function renderEditor(ctx) {
       const on = tid === id;
       panes.get(tid).setAttribute('aria-selected', String(on));
       panes.get(tid).tabIndex = on ? 0 : -1;
-      el.hidden = !on;
+      el.inert = !on;
+      el.classList.toggle('active-panel-tab', on);
     }
     if (id === 'layers') layers.render();
     else inspector.refresh();

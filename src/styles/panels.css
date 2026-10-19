@@ -112,6 +112,7 @@
 .inspector input.hex { height: 34px; }
 .inspector input.num { width: 78px; }
 .inspector .grid2 input.num { width: 100%; }
+.inspector input.num, .panel-body input.num { cursor: ns-resize; }
 .inspector .num-wrap.has-unit input.num { padding-right: 27px; }
 .inspector .btn-row { gap: 8px; margin: 9px 0; }
 .inspector .btn-row .icon-btn { width: 34px; height: 34px; }
@@ -130,6 +131,20 @@
 .layer-list { padding-inline: 8px; }
 .layer-row { height: 36px; gap: 6px; padding-right: 6px; }
 .layers-foot { padding: 8px 12px; gap: 4px; }
+
+/* Short, soft transitions keep inspector and asset browsing changes legible. */
+.tab { transition: color .18s ease, background-color .18s ease, border-color .18s ease; }
+.panel-title { opacity: 0; transform: translateY(4px); transition: opacity .18s ease, transform .18s ease; }
+.panel-title.title-entered { opacity: 1; transform: translateY(0); }
+.panel-body > * { opacity: 0; transform: translateY(8px); transition: opacity .22s ease, transform .22s cubic-bezier(.2,.75,.25,1); }
+.panel-body.tab-entered > * { opacity: 1; transform: translateY(0); }
+.right-body { position: relative; overflow: hidden; }
+.right-body > [role='tabpanel'] { position: absolute; inset: 0; overflow-y: auto; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(8px); transition: opacity .2s ease, transform .24s cubic-bezier(.2,.75,.25,1), visibility 0s linear .24s; }
+.right-body > [role='tabpanel'].active-panel-tab { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); transition-delay: 0s; }
+@media (prefers-reduced-motion: reduce) {
+  .tab, .panel-title, .panel-body > *, .right-body > [role='tabpanel'] { transition: none !important; }
+  .panel-title, .panel-body > *, .right-body > [role='tabpanel'] { transform: none !important; }
+}
 
 /* dialogs content */
 .export { display: grid; gap: 12px; }
