@@ -1,0 +1,121 @@
+/** Inline SVG interface icons (24×24 grid, 1.75 stroke). Hand-authored; no network needed. */
+
+const P = (d, extra = '') => `<path d="${d}" ${extra}/>`;
+
+export const ICONS = {
+  select: P('M5 3l14 8-6.5 1.8L10 20z', 'fill="currentColor"'),
+  direct: P('M5 3l14 8-6.5 1.8L10 20z'),
+  frame: P('M7 3v18M17 3v18M3 7h18M3 17h18'),
+  shapes: '<path d="M12 3l5 9H7z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>',
+  rect: '<rect x="4" y="5" width="16" height="14" rx="1.5"/>',
+  rounded: '<rect x="4" y="5" width="16" height="14" rx="5"/>',
+  ellipse: '<circle cx="12" cy="12" r="8"/>',
+  triangle: P('M12 4l9 16H3z'),
+  polygon: P('M12 3l8 5.5v7L12 21l-8-5.5v-7z'),
+  star: P('M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z'),
+  arrow: P('M4 9h9V5l7 7-7 7v-4H4z'),
+  line: P('M5 19L19 5'),
+  pen: '<path d="M12 2l5 10-5 3-5-3z"/><path d="M12 15v6"/><circle cx="12" cy="9" r="1"/>',
+  pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+  brush: '<path d="M18.5 3.5l2 2-8.5 8.5-2.2-2.2z"/><path d="M9.8 11.8C7 11 5 13 5 15.5S4 19 3 20c3 1.2 6.5.5 7.8-2.2.9-1.8.3-4-1-6z"/>',
+  eraser: '<path d="M8 20h12"/><path d="M4.5 15.5l9-9a2 2 0 012.8 0l3.2 3.2a2 2 0 010 2.8L12 20H8l-3.5-3.5a1 1 0 010-1z"/>',
+  text: '<path d="M5 6V4h14v2"/><path d="M12 4v16"/><path d="M9 20h6"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/>',
+  gradient: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l8-8M11 18l8-8"/>',
+  eyedropper: '<path d="M16 4l4 4-3 3-4-4z"/><path d="M13 7l-8 8v4h4l8-8"/>',
+  hand: P('M8 12V6a1.5 1.5 0 013 0v5m0-6a1.5 1.5 0 013 0v6m0-4a1.5 1.5 0 013 0v7a6 6 0 01-6 6h-1a6 6 0 01-5-3l-2-3a1.6 1.6 0 012.6-1.8L8 15'),
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/>',
+  redo: '<path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: P('M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z'),
+  download: P('M12 4v11M7 10l5 5 5-5M4 20h16'),
+  upload: P('M12 16V5M7 10l5-5 5 5M4 20h16'),
+  more: '<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+  plus: P('M12 5v14M5 12h14'),
+  minus: P('M5 12h14'),
+  fit: P('M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4'),
+  grid: P('M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18'),
+  ruler: '<path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff: '<path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0112 6c6 0 10 6 10 6a17 17 0 01-3.2 3.8M6.5 7.6A17 17 0 002 12s4 7 10 7c1.6 0 3-.4 4.3-1"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  unlock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 017.5-2"/>',
+  folder: P('M3 6a2 2 0 012-2h4l2 3h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z'),
+  group: '<path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><rect x="8" y="8" width="8" height="8" rx="1"/>',
+  ungroup: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/>',
+  trash: P('M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3'),
+  chevronDown: P('M6 9l6 6 6-6'),
+  chevronRight: P('M9 6l6 6-6 6'),
+  chevronUp: P('M6 15l6-6 6 6'),
+  alignLeft: '<path d="M4 3v18"/><rect x="7" y="6" width="12" height="4" rx="1"/><rect x="7" y="14" width="7" height="4" rx="1"/>',
+  alignCenterH: '<path d="M12 3v18"/><rect x="5" y="6" width="14" height="4" rx="1"/><rect x="8" y="14" width="8" height="4" rx="1"/>',
+  alignRight: '<path d="M20 3v18"/><rect x="5" y="6" width="12" height="4" rx="1"/><rect x="10" y="14" width="7" height="4" rx="1"/>',
+  alignTop: '<path d="M3 4h18"/><rect x="6" y="7" width="4" height="12" rx="1"/><rect x="14" y="7" width="4" height="7" rx="1"/>',
+  alignMiddle: '<path d="M3 12h18"/><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/>',
+  alignBottom: '<path d="M3 20h18"/><rect x="6" y="5" width="4" height="12" rx="1"/><rect x="14" y="10" width="4" height="7" rx="1"/>',
+  distributeH: '<path d="M4 3v18M20 3v18"/><rect x="9" y="7" width="6" height="10" rx="1"/>',
+  distributeV: '<path d="M3 4h18M3 20h18"/><rect x="7" y="9" width="10" height="6" rx="1"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9.5h.01M15 9.5h.01"/>',
+  texture: '<path d="M4 4h16v16H4z"/><path d="M4 10l6-6M4 16L16 4M8 20L20 8M14 20l6-6"/>',
+  type: P('M4 20l6-16 6 16M6.5 14h7M18 12v8M18 12h2'),
+  pages: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  x: P('M6 6l12 12M18 6L6 18'),
+  check: P('M5 12l5 5 9-10'),
+  home: P('M4 11l8-7 8 7v9H4z'),
+  panelLeft: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
+  panelRight: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
+  sliders: '<path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/>',
+  magnet: '<path d="M6 3v8a6 6 0 0012 0V3h-4v8a2 2 0 01-4 0V3z"/><path d="M6 7h4M14 7h4"/>',
+  keyboard: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+  save: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  warning: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  error: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  success: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  toFront: '<rect x="3" y="3" width="10" height="10" rx="1" opacity=".5"/><rect x="11" y="11" width="10" height="10" rx="1"/>',
+  toBack: '<rect x="11" y="11" width="10" height="10" rx="1" opacity=".5"/><rect x="3" y="3" width="10" height="10" rx="1"/>',
+  forward: P('M12 19V5M6 11l6-6 6 6'),
+  backward: P('M12 5v14M6 13l6 6 6-6'),
+  link: P('M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1'),
+  rotate: P('M20 12a8 8 0 11-3-6.2M20 4v5h-5'),
+  underline: P('M7 4v7a5 5 0 0010 0V4M5 20h14'),
+  strike: P('M5 12h14M16 7a4 4 0 00-4-2c-2.5 0-4 1.2-4 3s1.5 2.5 4 3.5 4 1.5 4 3.5-1.5 3-4 3a4.5 4.5 0 01-4.5-2.5'),
+  italic: P('M10 4h8M6 20h8M15 4L9 20'),
+  bold: P('M7 4h6a4 4 0 010 8H7zM7 12h7a4 4 0 010 8H7z'),
+  textLeft: P('M4 6h16M4 10h10M4 14h16M4 18h10'),
+  textCenter: P('M4 6h16M7 10h10M4 14h16M7 18h10'),
+  textRight: P('M4 6h16M10 10h10M4 14h16M10 18h10'),
+  nodeCorner: P('M5 19L12 5l7 14'),
+  nodeSmooth: P('M4 17c4 0 4-10 8-10s4 10 8 10'),
+  closePath: P('M5 17l5-10 9 6-5 5z'),
+  refresh: P('M20 11a8 8 0 10-2.3 6M20 4v6h-6'),
+  external: P('M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5'),
+  menu: P('M4 6h16M4 12h16M4 18h16'),
+  flipH: '<path d="M12 3v18"/><path d="M8 7L3 17h5zM16 7l5 10h-5z"/>',
+  isolate: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+  clear: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 20L20 4"/>',
+  arrange: '<rect x="3" y="3" width="10" height="10" rx="1"/><rect x="11" y="11" width="10" height="10" rx="1"/>',
+};
+
+const TYPE_ICON = {
+  rectangle: 'rect', roundedRectangle: 'rounded', ellipse: 'ellipse', line: 'line', polygon: 'polygon',
+  star: 'star', arrow: 'arrow', path: 'pen', text: 'text', image: 'image', icon: 'smile', group: 'group',
+  rasterLayer: 'brush', texture: 'texture', frame: 'frame',
+};
+
+export function typeIconName(type) {
+  return TYPE_ICON[type] || 'rect';
+}
+
+export function icon(name, size = 18) {
+  const body = ICONS[name] || ICONS.rect;
+  return `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+}
+
+/** Slatte mark: a rounded square holding a soft "S" stroke. */
+export function logoMark(size = 22) {
+  return `<svg class="logo-mark" width="${size}" height="${size}" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M21.5 11.2c-1.2-1.4-3-2.2-5.2-2.2-2.8 0-4.6 1.4-4.6 3.4 0 4.9 9.8 2.3 9.8 7.3 0 2.1-2 3.6-5 3.6-2.3 0-4.3-.9-5.6-2.5" fill="none" stroke="var(--logo-ink, #fff)" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+}
