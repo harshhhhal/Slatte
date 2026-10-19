@@ -10,7 +10,7 @@ export function renderNotFound(ctx, message = 'We couldn’t find that page.', {
     h('p', message),
     h('div.row-actions',
       h('a.btn.btn-primary', { href: '/', 'data-link': '' }, 'Back to your projects'),
-      h('a.btn', { href: '/templates', 'data-link': '' }, 'Start a new design')));
+      h('a.btn', { href: '/app', 'data-link': '' }, 'Open Slatte')));
   ctx.outlet.append(el);
   return { destroy() {} };
 }
