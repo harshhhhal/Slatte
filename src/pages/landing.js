@@ -132,10 +132,42 @@ export async function renderLanding(ctx) {
       h('span.muted', 'Made for ideas, built for your device.')));
 
   ctx.outlet.append(root);
+  const enterGroups = [
+    [root.querySelector('.hero'), [
+      root.querySelector('.hero-copy h1'), root.querySelector('.hero-copy .lede'),
+      root.querySelector('.hero-copy .hero-actions'), root.querySelector('.hero-visual'),
+    ]],
+    [root.querySelector('.capabilities'), [
+      root.querySelector('.capabilities .block-head'), root.querySelector('.cap-carousel'),
+    ]],
+    [root.querySelector('.make-strip'), [
+      root.querySelector('.make-copy h2'), root.querySelector('.make-gallery'),
+    ]],
+  ];
+  enterGroups.forEach(([, items]) => items.forEach((item, index) => {
+    if (!item) return;
+    item.classList.add('landing-enter');
+    item.style.transitionDelay = `${index * 140}ms`;
+  }));
+  const revealGroup = (section) => {
+    section?.querySelectorAll('.landing-enter').forEach((item) => item.classList.add('is-entered'));
+  };
+  let enterObserver;
+  if (reducedMotion.matches || !('IntersectionObserver' in window)) {
+    enterGroups.forEach(([section]) => revealGroup(section));
+  } else {
+    enterObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      revealGroup(entry.target);
+      enterObserver.unobserve(entry.target);
+    }), { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    enterGroups.forEach(([section]) => { if (section) enterObserver.observe(section); });
+  }
   startFeatureDeck();
   return {
     destroy() {
       stopFeatureDeck();
+      enterObserver?.disconnect();
       document.removeEventListener('visibilitychange', startFeatureDeck);
       reducedMotion.removeEventListener('change', onMotionChange);
     },

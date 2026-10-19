@@ -471,8 +471,8 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 .app-template-groups .size-grid { gap: 10px; }
 
 /* Landing page motion and a small visual sampler */
-.hero-copy { animation: landing-rise .7s cubic-bezier(.2,.75,.25,1) both; }
-.hero-visual { animation: landing-rise .85s .08s cubic-bezier(.2,.75,.25,1) both; }
+.landing:not(.app-home) .landing-enter { opacity: 0; transform: translateY(18px); transition: opacity .65s cubic-bezier(.2,.75,.25,1), transform .65s cubic-bezier(.2,.75,.25,1); }
+.landing:not(.app-home) .landing-enter.is-entered { opacity: 1; transform: translateY(0); }
 .hero-preview { transform-origin: 55% 55%; animation: preview-drift 7s 1s ease-in-out infinite; }
 .hero-preview:hover { animation-play-state: paused; }
 .make-strip { display: grid; grid-template-columns: minmax(190px, .7fr) minmax(0, 1.3fr); align-items: center; gap: clamp(28px, 7vw, 100px); padding: 30px 0 92px; }
@@ -482,7 +482,8 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 .make-copy > p:last-child { color: var(--text-muted); line-height: 1.55; font-size: 14px; }
 .make-gallery { min-height: 260px; display: flex; align-items: center; justify-content: center; position: relative; isolation: isolate; }
 .make-gallery::before { content: ''; position: absolute; z-index: -1; width: 66%; aspect-ratio: 1.8; border-radius: 50%; background: var(--accent-soft); filter: blur(1px); }
-.make-card { position: relative; display: flex; flex-direction: column; flex: 0 1 175px; aspect-ratio: .78; overflow: hidden; padding: 14px; border: 1px solid color-mix(in srgb, var(--border-strong) 50%, transparent); border-radius: 4px; box-shadow: 0 16px 36px color-mix(in srgb, var(--text) 12%, transparent); transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; animation: card-arrive .7s cubic-bezier(.2,.8,.2,1) both, card-bob 6s ease-in-out 1s infinite; }
+.make-card { position: relative; display: flex; flex-direction: column; flex: 0 1 175px; aspect-ratio: .78; overflow: hidden; padding: 14px; border: 1px solid color-mix(in srgb, var(--border-strong) 50%, transparent); border-radius: 4px; box-shadow: 0 16px 36px color-mix(in srgb, var(--text) 12%, transparent); transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; animation: card-arrive .7s cubic-bezier(.2,.8,.2,1) both, card-bob 6s ease-in-out 1s infinite; animation-play-state: paused; }
+.make-gallery.is-entered .make-card { animation-play-state: running; }
 .make-card:hover { z-index: 2; transform: translateY(-10px) rotate(0) !important; box-shadow: 0 24px 48px color-mix(in srgb, var(--text) 18%, transparent); }
 .make-card + .make-card { margin-left: -30px; }
 .make-poster { z-index: 1; background: #f7f1e6; color: #1d1c1a; transform: rotate(-8deg); animation-delay: .08s, 1.2s; }
@@ -503,7 +504,7 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 @keyframes card-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
 @media (max-width: 900px) { .make-strip { grid-template-columns: 1fr; gap: 10px; padding: 18px 0 70px; } .make-gallery { min-height: 245px; } }
 @media (max-width: 620px) { .make-gallery { min-height: 215px; } .make-card { flex-basis: 145px; } .make-card + .make-card { margin-left: -28px; } .make-poster-title, .make-social-title { font-size: 21px; } .make-type-mark { font-size: 64px; } }
-@media (prefers-reduced-motion: reduce) { .hero-copy, .hero-visual, .hero-preview, .make-card { animation: none !important; } .make-card, .hero-preview { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .landing:not(.app-home) .landing-enter { opacity: 1; transform: none; transition: none; } .hero-preview, .make-card { animation: none !important; } .make-card, .hero-preview { transition: none; } }
 @media (max-width: 620px) {
   .app-section-head { align-items: flex-start; gap: 12px; }
   .app-section-actions { align-self: flex-end; gap: 10px; }
