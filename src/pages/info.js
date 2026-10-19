@@ -81,7 +81,7 @@ function helpArt() {
 
 function helpItem(question, answer, keywords = '') {
   return h('details.help-item', { 'data-search': `${question} ${answer} ${keywords}`.toLowerCase() },
-    h('summary', question), h('p', answer));
+    h('summary', question), h('div.help-answer', h('div.help-answer-inner', h('p', answer))));
 }
 
 function faqGroup(title, items) {

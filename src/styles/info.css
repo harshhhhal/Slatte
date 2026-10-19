@@ -81,14 +81,17 @@
 .help-faq-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 24px; }
 .help-faq-group { min-width: 0; }
 .help-faq-group h3 { margin: 0 0 8px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--accent); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
-.help-item { border-bottom: 1px solid var(--border); }
+.help-item { display: grid; grid-template-rows: auto 0fr; border-bottom: 1px solid var(--border); transition: grid-template-rows .32s cubic-bezier(.2, .75, .25, 1); }
+.help-item[open] { grid-template-rows: auto 1fr; }
 .help-item[hidden], .help-faq-group[hidden], .help-empty[hidden] { display: none; }
 .help-item summary { position: relative; padding: 15px 22px 15px 0; cursor: pointer; font-size: 13px; font-weight: 620; line-height: 1.4; list-style: none; }
 .help-item summary::-webkit-details-marker { display: none; }
 .help-item summary::after { position: absolute; top: 13px; right: 1px; color: var(--accent); content: '+'; font-size: 19px; font-weight: 400; transition: transform .2s; }
 .help-item[open] summary::after { transform: rotate(45deg); }
-.help-item p { margin: -2px 0 15px; color: var(--text-muted); font-size: 12px; line-height: 1.6; animation: help-answer-in .22s ease both; }
-@keyframes help-answer-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.help-answer { display: grid; min-height: 0; overflow: hidden; }
+.help-answer-inner { min-height: 0; opacity: 0; transform: translateY(-5px); transition: opacity .2s ease, transform .26s ease; }
+.help-item[open] .help-answer-inner { opacity: 1; transform: translateY(0); transition-delay: .04s; }
+.help-answer p { margin: -2px 0 15px; color: var(--text-muted); font-size: 12px; line-height: 1.6; }
 .help-empty { margin: 22px 0 0; color: var(--text-muted); font-size: 14px; }
 .help-contact { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 16px; margin: 5px 0 12px; padding: 19px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .help-contact-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: var(--accent-soft); color: var(--accent); }
