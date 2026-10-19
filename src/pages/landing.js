@@ -129,7 +129,10 @@ export async function renderLanding(ctx) {
       ),
     h('footer.footer',
       h('span', `© ${new Date().getFullYear()} Slatte`),
-      h('span.muted', 'Made for ideas, built for your device.')));
+      h('span.muted', 'Made for ideas, built for your device.'),
+      h('nav.footer-links', { 'aria-label': 'Slatte information' },
+        h('a', { href: '/about', 'data-link': '' }, 'About'),
+        h('a', { href: '/help', 'data-link': '' }, 'Help'))));
 
   ctx.outlet.append(root);
   const enterGroups = [

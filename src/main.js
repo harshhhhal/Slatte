@@ -6,6 +6,7 @@ import { renderLanding } from './pages/landing.js';
 import { renderEditor } from './pages/editor.js';
 import { renderApp } from './pages/app.js';
 import { renderNotFound } from './pages/not-found.js';
+import { renderAbout, renderHelp } from './pages/info.js';
 
 initTheme();
 
@@ -13,6 +14,8 @@ const outlet = document.getElementById('app');
 
 const routes = [
   { path: '/', title: 'Slatte — a clean space to make things', view: renderLanding },
+  { path: '/about', title: 'About Slatte', view: renderAbout },
+  { path: '/help', title: 'Help — Slatte', view: renderHelp },
   { path: '/app', title: 'Your projects and templates — Slatte', view: renderApp },
   { path: '/templates', title: 'Your projects and templates — Slatte', view: (ctx) => { ctx.router.navigate('/app', { replace: true }); return { destroy() {} }; } },
   {
