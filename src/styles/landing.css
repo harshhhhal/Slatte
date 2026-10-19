@@ -697,10 +697,8 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 .app-home .app-welcome-copy { max-width: 680px; }
 .app-home .app-welcome-copy .eyebrow { margin-bottom: 13px; }
 .app-home .app-welcome-copy h1 { max-width: none; font-size: clamp(42px, 4.5vw, 60px); line-height: 1.02; letter-spacing: -.04em; text-wrap: balance; }
-.app-home .app-welcome-copy > p:not(.eyebrow):not(.app-local-note) { max-width: 42ch; margin-top: 12px; font-size: 15px; line-height: 1.5; }
+.app-home .app-welcome-copy > p:not(.eyebrow) { max-width: 42ch; margin-top: 12px; font-size: 15px; line-height: 1.5; }
 .app-home .app-welcome-copy .btn { margin-top: 18px; }
-.app-home .app-local-note { display: flex; align-items: center; gap: 7px; margin-top: 13px; color: var(--text-muted); font-size: 12px; }
-.app-home .app-local-note span { display: inline-flex; color: var(--accent); }
 .app-home .app-welcome-art { min-height: 260px; }
 .app-home .welcome-paper { width: min(46%, 200px); }
 .app-home .paper-front { padding: 17px; }
