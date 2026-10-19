@@ -29,8 +29,8 @@
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --left-w: 280px;
-  --right-w: 300px;
+  --left-w: 300px;
+  --right-w: 330px;
   --topbar-h: 48px;
   --status-h: 30px;
   --rail-w: 52px;

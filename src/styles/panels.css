@@ -92,6 +92,45 @@
 .asset-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .asset-meta, .asset-credit { font-size: 11px; color: var(--text-muted); }
 
+/* Give the editor panes a calmer rhythm while keeping every control in place. */
+.leftpanel-inner > .tabbar { gap: 6px; padding: 10px 10px 0; }
+.leftpanel-inner > .tabbar .tab { height: 40px; }
+.panel-title { padding: 14px 16px 7px; font-size: 14px; }
+.panel-body { padding: 12px 14px 22px; }
+.right-body { scrollbar-gutter: stable; }
+.inspector { padding: 8px 16px 28px; }
+.section { padding: 6px 0 12px; margin-bottom: 4px; }
+.section-head { min-height: 38px; padding: 8px 4px; font-size: 11px; letter-spacing: .075em; }
+.section-body { padding: 4px 4px 6px; }
+.prop-row { grid-template-columns: 78px minmax(0, 1fr); gap: 10px; min-height: 36px; margin: 7px 0; }
+.prop-label { font-size: 12px; line-height: 1.35; }
+.prop-controls { gap: 8px; }
+.grid2 { gap: 8px 12px; }
+.inspector input.num,
+.inspector input.text-input,
+.inspector select.select,
+.inspector input.hex { height: 34px; }
+.inspector input.num { width: 78px; }
+.inspector .grid2 input.num { width: 100%; }
+.inspector .num-wrap.has-unit input.num { padding-right: 27px; }
+.inspector .btn-row { gap: 8px; margin: 9px 0; }
+.inspector .btn-row .icon-btn { width: 34px; height: 34px; }
+.inspector .hint { margin: 10px 0; line-height: 1.55; }
+.brush-grid { gap: 8px; margin: 10px 0 14px; }
+.brush-btn { min-height: 72px; gap: 5px; padding: 8px 7px; border-radius: 10px; }
+.brush-btn canvas { width: 100%; height: 38px; object-fit: contain; }
+.tile-grid { gap: 10px; margin: 10px 0 14px; }
+.tile { min-height: 68px; padding: 10px 6px; border-radius: 10px; }
+.text-presets { gap: 10px; margin: 10px 0 14px; }
+.text-preset { padding: 12px 14px; }
+.page-list, .asset-list, .font-list { gap: 8px; margin: 10px 0 14px; }
+.page-item, .font-item, .asset { border-radius: 10px; }
+.page-btn, .asset { padding: 10px; }
+.layers-tools { gap: 8px; padding: 10px 14px; }
+.layer-list { padding-inline: 8px; }
+.layer-row { height: 36px; gap: 6px; padding-right: 6px; }
+.layers-foot { padding: 8px 12px; gap: 4px; }
+
 /* dialogs content */
 .export { display: grid; gap: 12px; }
 .fmt-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
