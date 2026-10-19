@@ -31,11 +31,21 @@ export async function renderApp(ctx) {
   themeButton.addEventListener('click', () => { toggleTheme(); paintTheme(); });
   paintTheme();
 
+  const welcome = h('section.app-welcome',
+    h('div.app-welcome-copy',
+      h('p.eyebrow', 'YOUR CREATIVE SPACE'),
+      h('h1', 'Make something worth keeping.'),
+      h('p', 'Pick up where you left off, or start with a fresh canvas.'),
+      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design')),
+    h('div.app-welcome-art', { 'aria-hidden': 'true' },
+      h('span.welcome-paper.paper-back'),
+      h('div.welcome-paper.paper-front', h('span', 'SLATTE / STUDIO'), h('i'), h('b'), h('em')),
+      h('span.welcome-spark.spark-one', '✳'), h('span.welcome-spark.spark-two', '✳')));
+  const projectCount = h('span.app-project-count', '0 projects');
   const projectList = h('ul.project-grid', { 'aria-label': 'Your projects' });
   const projectSection = h('section.app-projects#projects', h('div.app-section-head',
-    h('div', h('p.eyebrow', 'Your work, all together'), h('h2', 'Recent projects'), h('p.section-note', 'Pick up where you left off.')),
-    h('div.app-section-actions',
-      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design'))),
+    h('div', h('p.eyebrow', 'YOUR WORK, ALL TOGETHER'), h('h2', 'Recent projects')),
+    projectCount),
     projectList);
 
   const loadProjects = async () => {
@@ -47,6 +57,7 @@ export async function renderApp(ctx) {
         h('button.btn', { type: 'button', onclick: loadProjects }, 'Try again')));
       return;
     }
+    projectCount.textContent = `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}`;
     urls.splice(0).forEach((url) => URL.revokeObjectURL(url));
     if (!projects.length) {
       projectList.replaceChildren(h('li.state.state-empty', h('p.state-title', 'Your next idea starts here'),
@@ -83,7 +94,7 @@ export async function renderApp(ctx) {
   const root = h('div.landing.app-home',
     h('header.nav.app-nav', h('a.brand', { href: '/', 'data-link': '', 'aria-label': 'Slatte home', html: `${logoMark(26)}<span>Slatte</span>` }),
       h('div.nav-actions', themeButton)),
-    h('main#main.app-main', projectSection),
+    h('main#main.app-main', welcome, projectSection),
     h('footer.footer', h('span', `© ${new Date().getFullYear()} Slatte`), h('span.muted', 'Your projects stay on this device.')));
   ctx.outlet.append(root);
   loadProjects();
