@@ -61,7 +61,7 @@ export async function renderLanding(ctx) {
     featureTimer = setInterval(() => {
       activeFeature = (activeFeature + 1) % CAPABILITIES.length;
       syncFeatureDeck();
-    }, 3400);
+    }, 4400);
   };
   featureDeck.addEventListener('mouseenter', stopFeatureDeck);
   featureDeck.addEventListener('mouseleave', startFeatureDeck);
