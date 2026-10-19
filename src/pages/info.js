@@ -21,7 +21,7 @@ function pageFrame(ctx, content) {
       h('nav.info-nav-links', { 'aria-label': 'Main navigation' },
         h('a', { href: '/about', 'data-link': '', 'aria-current': location.pathname === '/about' ? 'page' : null }, 'About'),
         h('a', { href: '/help', 'data-link': '', 'aria-current': location.pathname === '/help' ? 'page' : null }, 'Help')),
-      h('div.nav-actions', themeButton, h('a.btn.btn-primary.info-start', { href: '/app', 'data-link': '' }, 'Open studio'))),
+      h('div.nav-actions', themeButton, h('a.btn.btn-primary.info-start', { href: '/app', 'data-link': '' }, 'Get started'))),
     h('main#main.info-main', content),
     h('footer.footer.info-footer',
       h('a.info-footer-brand', { href: '/', 'data-link': '', html: `${logoMark(20)}<span>Slatte</span>` }),
@@ -40,8 +40,9 @@ function posterStack() {
 }
 
 function aboutFeature(iconName, title, text) {
-  return h('article.about-feature', h('span.about-feature-icon', { html: icon(iconName, 19) }),
-    h('h2', title), h('p', text));
+  return h('article.about-feature',
+    h('div.about-feature-top', h('span.about-feature-icon', { html: icon(iconName, 19) }), h('span.about-feature-index', '0' + (iconName === 'pages' ? '1' : iconName === 'pen' ? '2' : '3'))),
+    h('h3', title), h('p', text));
 }
 
 export function renderAbout(ctx) {
@@ -55,22 +56,26 @@ export function renderAbout(ctx) {
           h('a.btn.btn-primary.info-hero-cta', { href: '/app', 'data-link': '' }, 'Make something ', h('span', '↗'))),
         posterStack()),
       h('section.about-principles', { 'aria-label': 'What Slatte is made for' },
-        h('div.about-section-intro', h('p.eyebrow', 'MADE FOR THE MAKING'), h('h2', 'From first sketch to finished piece.')),
+        h('div.about-section-intro', h('p.eyebrow', 'THE STUDIO'), h('h2', 'One canvas. Room for every idea.')),
         h('div.about-feature-grid',
           aboutFeature('pages', 'Room to explore', 'Keep multiple artboards side by side and move between ideas without losing your place.'),
           aboutFeature('pen', 'Tools that work together', 'Combine type, shapes, images, and paint on the same canvas.'),
           aboutFeature('download', 'Ready to take with you', 'Export finished work, or save an editable project file to move it elsewhere.'))),
-      h('section.about-maker', h('div.about-maker-mark', { html: logoMark(30) }),
-        h('div', h('p.eyebrow', 'INDEPENDENTLY MADE'), h('h2', 'Built by Harshal.'),
-          h('p', 'Slatte is an independent project, made to give everyday creative work a focused, welcoming home.'),
-          h('a.info-text-link', { href: GITHUB, target: '_blank', rel: 'noreferrer' }, 'See the project on GitHub ', h('span', '↗'))))));
+      h('section.about-maker',
+        h('div.about-maker-brand', h('span.about-maker-mark', { html: logoMark(30) }), h('span', 'AN INDEPENDENT PROJECT')),
+        h('div.about-maker-copy', h('h2', 'Made by Harshal.'),
+          h('p', 'Slatte is built around a simple belief: creative tools should make it easier to begin.'),
+          h('a.info-text-link', { href: GITHUB, target: '_blank', rel: 'noreferrer' }, 'Follow the project ', h('span', '↗'))))));
 }
 
 function helpArt() {
   return h('div.help-art', { 'aria-hidden': 'true' },
     h('div.help-art-glow'),
-    h('div.help-art-sheet help-sheet-back', h('span', 'CANVAS'), h('i')),
-    h('div.help-art-sheet help-sheet-front', h('span', 'YOUR IDEA'), h('strong', 'Start\nanywhere.')),
+    h('div.help-art-sheet.help-sheet-back', h('span', 'YOUR WORKSPACE'), h('i.help-back-shape')),
+    h('div.help-art-sheet.help-sheet-front',
+      h('span', 'SLATTE / FIELD NOTES'), h('strong', 'Start\nanywhere.'),
+      h('div.help-art-rule'), h('div.help-art-tools', h('i', 'T'), h('i', '◯'), h('i', '↗'))),
+    h('div.help-art-note', h('span', '01'), h('strong', 'Choose a tool'), h('i')),
     h('span.help-art-spark', '✳'));
 }
 
@@ -125,11 +130,13 @@ export function renderHelp(ctx) {
         h('div.info-hero-copy', h('p.eyebrow', 'A LITTLE HELP, RIGHT HERE'),
           h('h1', 'Make your next move.'),
           h('p.info-lede', 'Quick answers for the canvas, your projects, and the tools in Slatte.'),
-          h('a.info-text-link help-back-link', { href: '/app', 'data-link': '' }, 'Back to the studio ', h('span', '↗'))),
+          h('a.info-text-link.help-back-link', { href: '/app', 'data-link': '' }, 'Back to the studio ', h('span', '↗'))),
         helpArt()),
       h('section.help-library', h('div.help-library-head', h('div', h('p.eyebrow', 'HELP DESK'), h('h2', 'Find your answer.')),
         h('label.help-search', h('span', { html: icon('search', 17) }), search)),
         questions, empty),
-      h('section.help-contact', h('div', h('p.eyebrow', 'NEED A HAND?'), h('h2', 'Talk to the maker.'), h('p', 'Report a problem or share what would make Slatte work better for you.')),
-        h('a.btn.info-contact-btn', { href: 'https://github.com/harshhhhal/Slatte/issues', target: '_blank', rel: 'noreferrer' }, 'Contact on GitHub ', h('span', '↗')))));
+      h('section.help-contact',
+        h('span.help-contact-icon', { html: icon('info', 19) }),
+        h('div.help-contact-copy', h('p.eyebrow', 'NEED A HAND?'), h('h2', 'Talk to the maker.'), h('p', 'Share a bug, a question, or an idea for Slatte.')),
+        h('a.btn.info-contact-btn', { href: 'https://github.com/harshhhhal/Slatte/issues', target: '_blank', rel: 'noreferrer' }, 'Get in touch ', h('span', '↗')))));
 }

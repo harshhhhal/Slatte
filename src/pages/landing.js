@@ -109,7 +109,7 @@ export async function renderLanding(ctx) {
       h('nav.nav-links', { 'aria-label': 'Main navigation' },
         h('a', { href: '/about', 'data-link': '' }, 'About'),
         h('a', { href: '/help', 'data-link': '' }, 'Help')),
-      h('div.nav-actions', themeBtn)),
+      h('div.nav-actions', themeBtn, h('a.btn.btn-primary.nav-get-started', { href: '/app', 'data-link': '' }, 'Get started'))),
     h('main#main',
       h('section.hero',
         h('div.hero-copy',

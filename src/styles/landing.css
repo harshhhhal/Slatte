@@ -217,6 +217,7 @@
 .nav { min-height: 68px; padding-inline: clamp(18px, 5vw, 72px); }
 .nav-actions { margin-left: auto; }
 .nav-actions .icon-btn { width: 40px; height: 40px; border-radius: 50%; border-color: var(--border); background: var(--surface); }
+.nav-get-started { min-height: 40px; padding-inline: 17px; border-radius: 999px; }
 .hero { grid-template-columns: minmax(300px, .76fr) minmax(0, 1.24fr); gap: clamp(32px, 6vw, 88px); padding-top: clamp(70px, 9vw, 118px); padding-bottom: clamp(76px, 10vw, 130px); }
 .hero-copy { max-width: 500px; }
 .hero h1 { max-width: 9ch; font-size: clamp(58px, 7vw, 92px); line-height: .94; letter-spacing: -.055em; }
