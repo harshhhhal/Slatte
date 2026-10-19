@@ -5,7 +5,6 @@ import { fonts, GOOGLE_FONTS, SYSTEM_FONTS } from '../../services/font-service.j
 import { LOCAL_ICONS, iconPreviewUrl, searchIcons } from '../../services/icon-service.js';
 import { searchOpenverse } from '../../services/openverse-service.js';
 import { addTextObject, insertLocalIcon, insertOpenverseImage, insertRemoteIcon } from '../../services/asset-import.js';
-import { BRUSH_PRESETS, drawPresetPreview } from '../brush-engine.js';
 import { textureDataUrl } from '../../services/texture-service.js';
 import { describeError } from '../../utils/errors.js';
 import { formatBytes } from '../../utils/file-validation.js';
@@ -18,7 +17,6 @@ const TABS = [
   { id: 'icons', icon: 'smile', label: 'Icons' },
   { id: 'photos', icon: 'image', label: 'Photos' },
   { id: 'textures', icon: 'texture', label: 'Textures' },
-  { id: 'brushes', icon: 'brush', label: 'Brushes' },
   { id: 'fonts', icon: 'type', label: 'Fonts' },
   { id: 'uploads', icon: 'folder', label: 'Uploads' },
 ];
@@ -250,24 +248,6 @@ export function createLeftPanel(app) {
       h('p.hint', 'Textures are generated locally and saved as editable parameters. They export with your design; try the Multiply blend mode for paper grain.'));
   };
 
-  /* ------------------------------- brushes ------------------------------- */
-
-  const brushesTab = () => {
-    const b = editor.toolOptions.brush;
-    const grid = h('div.brush-grid', BRUSH_PRESETS.map((p) => {
-      const cv = h('canvas', { width: 120, height: 34 });
-      requestAnimationFrame(() => drawPresetPreview(cv, p, getComputedStyle(root).getPropertyValue('--text').trim() || '#18181b'));
-      return h('button.brush-btn', {
-        type: 'button', draggable: 'true', 'aria-label': `${p.name} brush`, title: p.name,
-        ondragstart: (e) => dragElement(e, { kind: 'brush', preset: p.id }),
-        onclick: () => { b.preset = p.id; editor.setTool('brush'); editor.emit('brush'); },
-      }, cv, h('span', p.name));
-    }));
-    return h('div', grid,
-      h('button.btn.btn-block', { type: 'button', onclick: () => editor.emit('new-paint-layer') }, 'New paint layer'),
-      h('p.hint', 'Choose a preset to start painting. Adjust size, opacity and colour in the Design panel. Strokes go onto raster paint layers and can be undone.'));
-  };
-
   /* ------------------------------- fonts ------------------------------- */
 
   const fontsTab = () => {
@@ -359,7 +339,7 @@ export function createLeftPanel(app) {
     return wrap;
   };
 
-  const builders = { elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, brushes: brushesTab, fonts: fontsTab, uploads: uploadsTab };
+  const builders = { elements: elementsTab, icons: iconsTab, photos: photosTab, textures: texturesTab, fonts: fontsTab, uploads: uploadsTab };
   tabBtns.forEach((b, i) => { b.setAttribute('aria-selected', String(i === 0)); b.tabIndex = i === 0 ? 0 : -1; });
   return { el: root, show, destroy: () => { cleanups.splice(0).forEach((c) => c()); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape, true); } };
 }

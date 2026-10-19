@@ -686,10 +686,6 @@ export class Stage {
           const size = Math.min(page.width, page.height) * 0.5;
           const obj = createObject('texture', { kind: data.texture, x: s.x - size / 2, y: s.y - size / 2, width: size, height: size, scale: ['paper', 'noise'].includes(data.texture) ? 60 : Math.max(12, Math.round(page.width / 60)), intensity: 0.45, density: 0.5, name: `${data.texture[0].toUpperCase()}${data.texture.slice(1)} texture`, blendMode: ['paper', 'noise'].includes(data.texture) ? 'multiply' : 'normal' });
           this.editor.addObjects([obj], { label: 'Add texture' });
-        } else if (data.kind === 'brush') {
-          this.editor.toolOptions.brush.preset = data.preset;
-          this.editor.setTool('brush');
-          this.editor.emit('brush');
         }
       } catch { /* ignore invalid internal drag payloads */ }
       return;

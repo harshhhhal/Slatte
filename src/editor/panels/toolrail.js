@@ -1,6 +1,7 @@
 import { h } from '../../utils/dom.js';
 import { icon } from '../../core/icons.js';
 import { formatKeys } from '../../core/shortcuts.js';
+import { BRUSH_PRESETS, drawPresetPreview } from '../brush-engine.js';
 
 const TOOLS = [
   { id: 'select', icon: 'select', label: 'Select', key: 'V' },
@@ -53,14 +54,41 @@ export function createToolRail(editor) {
     }
   };
 
+  const renderSubdock = (group) => {
+    const items = group.items.map((item) => h('button.subtool-btn', {
+      type: 'button', title: label(item), 'aria-label': label(item), 'aria-pressed': String(editor.toolId === item.id),
+      class: editor.toolId === item.id ? 'active' : '',
+      onclick: () => {
+        lastInGroup[group.group] = item.id;
+        activate(item.id);
+        if (group.group === 'paint' && item.id === 'brush') renderSubdock(group);
+        else closeSubdock();
+      },
+    }, h('span.subtool-icon', { html: icon(item.icon, 18) }), h('span.subtool-label', item.label)));
+    const presets = group.group === 'paint' && editor.toolId === 'brush'
+      ? h('div.subdock-brushes', { role: 'radiogroup', 'aria-label': 'Brush presets' }, BRUSH_PRESETS.map((preset) => {
+        const canvas = h('canvas', { width: 52, height: 20, 'aria-hidden': 'true' });
+        requestAnimationFrame(() => drawPresetPreview(canvas, preset, getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#18181b'));
+        return h('button.subdock-brush', {
+          type: 'button', role: 'radio', 'aria-checked': String(editor.toolOptions.brush.preset === preset.id),
+          title: preset.name, 'aria-label': preset.name,
+          onclick: () => {
+            editor.toolOptions.brush.preset = preset.id;
+            editor.emit('brush');
+            activate('brush');
+            renderSubdock(group);
+          },
+        }, canvas, h('span.subdock-brush-label', preset.name));
+      }))
+      : null;
+    subdock.classList.toggle('with-brush-presets', !!presets);
+    subdock.replaceChildren(...items, ...(presets ? [presets] : []));
+  };
+
   const showSubdock = (group) => {
     if (openGroup === group.group) { closeSubdock(); return; }
     openGroup = group.group;
-    subdock.replaceChildren(...group.items.map((item) => h('button.subtool-btn', {
-      type: 'button', title: label(item), 'aria-label': label(item), 'aria-pressed': String(editor.toolId === item.id),
-      class: editor.toolId === item.id ? 'active' : '',
-      onclick: () => { lastInGroup[group.group] = item.id; activate(item.id); closeSubdock(); },
-    }, h('span.subtool-icon', { html: icon(item.icon, 18) }), h('span.subtool-label', item.label))));
+    renderSubdock(group);
     subdock.hidden = false;
     for (const { btn, group: meta } of buttons.values()) if (meta) {
       const expanded = meta.group === group.group;
