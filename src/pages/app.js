@@ -2,10 +2,10 @@ import { h, Disposer } from '../utils/dom.js';
 import { icon, logoMark } from '../core/icons.js';
 import { toggleTheme, getTheme } from '../core/theme.js';
 import { storage } from '../services/project-storage.js';
-import { createProject, duplicateProject } from '../services/projects.js';
+import { duplicateProject } from '../services/projects.js';
 import { confirmDialog, toast, showMenu } from '../ui/ui.js';
 import { describeError } from '../utils/errors.js';
-import { openNewDesignDialog, presetGroups } from './picker.js';
+import { openNewDesignDialog } from './picker.js';
 
 function relTime(iso) {
   const time = Date.parse(iso);
@@ -35,8 +35,7 @@ export async function renderApp(ctx) {
   const projectSection = h('section.app-projects#projects', h('div.app-section-head',
     h('div', h('p.eyebrow', 'Your work, all together'), h('h2', 'Recent projects'), h('p.section-note', 'Pick up where you left off.')),
     h('div.app-section-actions',
-      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design'),
-      h('a.section-link', { href: '#templates' }, 'Browse canvases', h('span', { html: icon('arrow-right', 15) })))),
+      h('button.btn.btn-primary', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, h('span', { html: icon('plus', 16) }), 'New design'))),
     projectList);
 
   const loadProjects = async () => {
@@ -84,16 +83,7 @@ export async function renderApp(ctx) {
   const root = h('div.landing.app-home',
     h('header.nav.app-nav', h('a.brand', { href: '/', 'data-link': '', 'aria-label': 'Slatte home', html: `${logoMark(26)}<span>Slatte</span>` }),
       h('div.nav-actions', themeButton)),
-    h('main#main.app-main', projectSection,
-      h('section.app-templates#templates', h('div.app-section-head', h('div', h('p.eyebrow', 'Start with a format'), h('h2', 'Find your canvas'), h('p.section-note', 'A good fit for every idea.')),
-        h('button.btn', { type: 'button', onclick: () => openNewDesignDialog(ctx) }, 'Custom size')),
-      h('div.app-template-groups', presetGroups((preset, button) => {
-        button.disabled = true;
-        createProject({ preset: preset.id, name: preset.name }).then((id) => openEditor(id)).catch((err) => {
-          button.disabled = false;
-          toast(describeError(err, 'Could not create the project.'), { kind: 'error' });
-        });
-      })))),
+    h('main#main.app-main', projectSection),
     h('footer.footer', h('span', `© ${new Date().getFullYear()} Slatte`), h('span.muted', 'Your projects stay on this device.')));
   ctx.outlet.append(root);
   loadProjects();
