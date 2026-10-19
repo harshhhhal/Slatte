@@ -62,17 +62,28 @@ export function openNewDesignDialog(ctx) {
   };
   const choose = (preset, button) => start({ preset: preset.id, name: preset.name }, button);
   let selectedGroup = groups[0];
-  presets.replaceChildren(presetCards(PAGE_PRESETS.filter((preset) => preset.group === selectedGroup), choose));
+  const renderPresets = (group, direction = '') => {
+    selectedGroup = group;
+    presets.classList.remove('slide-next', 'slide-previous');
+    presets.replaceChildren(presetCards(PAGE_PRESETS.filter((preset) => preset.group === group), choose));
+    if (!direction) return;
+    presets.classList.add(direction);
+    presets.querySelector('.size-grid')?.addEventListener('animationend', () => {
+      presets.classList.remove(direction);
+    }, { once: true });
+  };
+  renderPresets(selectedGroup);
   const tabs = h('div.picker-tabs', { role: 'tablist', 'aria-label': 'Canvas categories' }, groups.map((group, index) => {
     const tab = h('button.picker-tab', { type: 'button', role: 'tab', 'aria-selected': index === 0, class: index === 0 ? 'active' : '' }, group);
     tab.addEventListener('click', () => {
-      selectedGroup = group;
+      const previousIndex = groups.indexOf(selectedGroup);
+      const nextIndex = groups.indexOf(group);
       for (const item of tabs.children) {
         const active = item === tab;
         item.classList.toggle('active', active);
         item.setAttribute('aria-selected', String(active));
       }
-      presets.replaceChildren(presetCards(PAGE_PRESETS.filter((preset) => preset.group === selectedGroup), choose));
+      renderPresets(group, nextIndex > previousIndex ? 'slide-next' : 'slide-previous');
     });
     return tab;
   }));
