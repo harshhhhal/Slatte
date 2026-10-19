@@ -528,9 +528,9 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 }
 
 /* Continuous 3D coverflow feature stack */
-.capabilities { grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr); gap: clamp(24px, 4vw, 56px); padding-bottom: 96px; }
+.capabilities { grid-template-columns: minmax(0, 1.25fr) minmax(290px, .75fr); gap: clamp(24px, 4vw, 56px); padding-bottom: 96px; }
 .capabilities .block-head { grid-column: 2; grid-row: 1; justify-self: start; text-align: left; }
-.capabilities .block-head h2 { max-width: 15ch; white-space: pre-line; font-size: clamp(36px, 3.8vw, 48px); line-height: 1.02; letter-spacing: -.045em; }
+.capabilities .block-head h2 { max-width: none; white-space: pre-line; font-size: clamp(36px, 3.5vw, 44px); line-height: 1.04; letter-spacing: -.04em; }
 .cap-carousel { position: relative; grid-column: 1; grid-row: 1; min-width: 0; height: 330px; overflow: hidden; perspective: 1100px; perspective-origin: 50% 48%; cursor: grab; touch-action: pan-y; user-select: none; }
 .cap-carousel:active { cursor: grabbing; }
 .cap-track { position: relative; width: 100%; height: 100%; margin: 0; padding: 0; list-style: none; transform-style: preserve-3d; }
@@ -538,8 +538,8 @@ dialog.dialog.wide.template-dialog .dialog-body { max-height: calc(100dvh - 88px
 .cap-track .cap-icon { width: 40px; height: 40px; }
 .cap-track .cap h3 { margin-top: 15px; font-size: 16px; }
 .cap-track .cap[data-position="0"] { z-index: 4; opacity: 1; transform: translate(-50%, -50%) translateZ(70px) scale(1); box-shadow: 0 24px 48px color-mix(in srgb, var(--text) 17%, transparent); }
-.cap-track .cap[data-position="1"] { z-index: 3; opacity: .9; transform: translate(-50%, -50%) translateX(170px) rotateY(-28deg) scale(.86); }
-.cap-track .cap[data-position="-1"] { z-index: 3; opacity: .9; transform: translate(-50%, -50%) translateX(-170px) rotateY(28deg) scale(.86); }
+.cap-track .cap[data-position="1"] { z-index: 3; opacity: .9; transform: translate(-50%, -50%) translateX(205px) rotateY(-28deg) scale(.86); }
+.cap-track .cap[data-position="-1"] { z-index: 3; opacity: .9; transform: translate(-50%, -50%) translateX(-205px) rotateY(28deg) scale(.86); }
 .cap-track .cap[data-position="2"] { z-index: 2; opacity: 0; transform: translate(-50%, -50%) translateX(205px) rotateY(-38deg) scale(.66); pointer-events: none; }
 .cap-track .cap[data-position="-2"] { z-index: 2; opacity: 0; transform: translate(-50%, -50%) translateX(-205px) rotateY(38deg) scale(.66); pointer-events: none; }
 .cap-track .cap[data-position="3"] { z-index: 1; opacity: 0; transform: translate(-50%, -50%) translateZ(-180px) scale(.55); }

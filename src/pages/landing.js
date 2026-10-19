@@ -117,7 +117,7 @@ export async function renderLanding(ctx) {
           h('div.hero-float.float-top', h('span.float-mark', '✳'), h('span', 'A fresh canvas')),
           h('div.hero-float.float-bottom', h('span.float-swatch'), h('span', 'Made your way')))),
       h('section.capabilities#capabilities', { 'aria-labelledby': 'cap-h' },
-        h('div.block-head', h('h2#cap-h', 'Tools for your\nnext good idea.')),
+        h('div.block-head', h('h2#cap-h', 'Tools for\nbig ideas.')),
         featureDeck),
       h('section.make-strip', { 'aria-labelledby': 'make-h' },
         h('div.make-copy',
